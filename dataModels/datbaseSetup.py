@@ -295,24 +295,11 @@ def init_db():
             cursor.execute(query)
 
         connection.commit()
-        cursor.close()
         connection.close()
+        cursor.close()
         print("Database & Tables Initialized Successfully!")
 
+        return True
     except mysql.connector.Error as err:
         print(f"Error initializing database: {err}")
-
-
-def drop_tables():
-    try:
-        connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST, database=DB_NAME)
-        cursor = connection.cursor()
-
-        
-        cursor.execute(f"DROP DATABASE IF EXISTS your_database_name;;")
-        
-        cursor.close()
-        connection.close()
-        print("Tables dropped successfully.")
-    except mysql.connector.Error as err:
-        print(f"Error dropping tables: {err}")
+        return False
