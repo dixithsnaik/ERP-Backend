@@ -2,8 +2,131 @@ from flask import request, jsonify
 import logging
 
 # internal imports
-from dataControllers.Quotations import getUnapprovedQuotationsDB, getAllQuotationsDB, getPendingApprovalQuotationsDB, approvedQuotationDB
+from dataControllers.Quotations import  (
+                                        getUnapprovedQuotationsDB, 
+                                        getAllQuotationsDB, 
+                                        getPendingApprovalQuotationsDB, 
+                                        approvedQuotationDB, 
+                                        rejectedQuotationDB,
+                                        approvalStatusDB,
+                                        createQuotationDB
+                                        )
+
 from dataControllers.Customers import getCustomerName
+
+def createQuotation():
+    """
+    This function creates a quotation in the database.
+    {
+    "customerid": 101,
+    "rfqid": 202,
+    "name": "John Doe",
+    "emailAddress": "john.doe@example.com",
+    "phoneNumber": "1234567890",
+    "termsAndConditions": "Standard terms apply.",
+    "paymentTerms": "Net 30 days",
+    "taxAndDuties": "Included in price",
+    "briefDescription": "Quotation for electronic components",
+    "deliveryDate": "2025-04-15",
+    "packageAndForwarding": "Standard packaging",
+    "createdBy": 301,
+    "itemDetails": {
+        "items": [
+        {
+            "itemDescription": "Microcontroller Unit",
+            "partNumber": "MCU-1234",
+            "quantity": 10,
+            "unitRateINR": 1500,
+            "note": "High-performance MCU for industrial use"
+        },
+        {
+            "itemDescription": "Resistor Pack",
+            "partNumber": "RES-5678",
+            "quantity": 100,
+            "unitRateINR": 5,
+            "note": "Pack of 100 resistors (1kΩ)"
+        }
+        ],
+        "notes": "Bulk order, special discount applied."
+    }
+    }
+    """
+
+    try:
+        # create the quotation in the database
+        createQuotation = createQuotationDB(request.json)
+        return jsonify({"createQuotation": createQuotation})
+
+    except Exception as e:
+        # logging.error(f"An error occurred while creating the quotation: {e}")
+        return jsonify({"error": str(e)})
+    
+
+def approvalStatus():
+    """
+    This function updates the approval status of a quotation in the database.
+    the input will be 
+    {
+    "quotationid": "INT",
+    "AdminApproved":"BOOLEAN"
+    }
+    in post request
+    we will update the AdminApproved column in the database
+    """
+
+    try:
+        quotationid = request.json["quotationid"]
+        AdminApproved = request.json["AdminApproved"]
+
+        # update the approval status of the quotation in the database
+        approvalStatus = approvalStatusDB(quotationid, AdminApproved)
+
+        return jsonify({"approvalStatus": approvalStatus})
+
+    except Exception as e:
+        # logging.error(f"An error occurred while updating the approval status of the quotation: {e}")
+        return jsonify({"error": str(e)})
+
+def rejectedQuotation():
+    """
+    this function rejects a quotation in the database.
+    {
+  "quotations": [
+            {
+            "quotationid": 502,
+            "customerid": 102,
+            "name": "Alice Smith",
+            "emailAddress": "alice.smith@example.com",
+            "phoneNumber": "9876543210",
+            "deliveryDate": "2025-04-20",
+            "AdminApproved": false,
+            "itemDetails": {
+                "items": [
+                {
+                    "itemDescription": "Voltage Regulator",
+                    "partNumber": "VR-9012",
+                    "quantity": 20,
+                    "unitRateINR": 300,
+                    "note": "For power supply circuits"
+                }
+                ],
+                "notes": "Urgent delivery required."
+            }
+            }
+        ]
+        }
+
+    """
+
+    try:
+        # reject the quotation in the database
+        rejectedQuotation = rejectedQuotationDB()
+
+        return jsonify({"rejectedQuotation": rejectedQuotation})
+
+    except Exception as e:
+        # logging.error(f"An error occurred while rejecting the quotation: {e}")
+        return jsonify({"error": str(e)})
 
 def approvedQuotation():
     """
