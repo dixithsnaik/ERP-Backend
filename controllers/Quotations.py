@@ -2,8 +2,49 @@ from flask import request, jsonify
 import logging
 
 # internal imports
-from dataControllers.Quotations import getUnapprovedQuotationsDB, getAllQuotationsDB
+from dataControllers.Quotations import getUnapprovedQuotationsDB, getAllQuotationsDB, getPendingApprovalQuotationsDB
 from dataControllers.Customers import getCustomerName
+
+
+def getPendingApprovalQuotations():
+    """
+    This function fetches all the quotations pending approval from the database and returns them as a JSON object.
+    {
+        "quotationid": "INT",
+        "customer_name": "STRING",//customer table
+        "rfqid": "INT",
+        "name": "VARCHAR(255)",
+        "emailAddress": "VARCHAR(255)",
+        "phoneNumber": "VARCHAR(15)",
+        "termsAndConditions": "TEXT",
+        "paymentTerms": "TEXT",
+        "taxAndDuties": "TEXT",
+        "briefDescription": "TEXT",
+        "deliveryDate": "DATE",
+        "packageAndForwarding": "TEXT",
+        "createdBy": "INT",
+        "AdminApproved": "BOOLEAN",
+        "log": "JSON",
+        "itemDetails": "JSON",
+        "created_at": "TIMESTAMP",
+        "updated_at": "TIMESTAMP"
+    }
+    """
+
+    try:
+        # fetch all quotations pending approval from the database
+        pendingApprovalQuotations = getPendingApprovalQuotationsDB()
+
+        for quotation in pendingApprovalQuotations:
+            customerName = getCustomerName(quotation["customerid"])
+            quotation["customer_name"] = customerName
+
+        return jsonify({"pendingApprovalQuotations": pendingApprovalQuotations})
+
+    except Exception as e:
+        # logging.error(f"An error occurred while fetching pending approval quotations: {e}")
+        return jsonify({"error": str(e)})
+
 
 
 def getAllQuotations():
