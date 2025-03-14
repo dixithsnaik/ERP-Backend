@@ -1,4 +1,136 @@
+import json
+
 from dataControllers.cursor import cursor
+
+def updateQuotationDB(data):
+    """
+    This is db function to update a quotation in the database.
+    It will only update the keys given to it and not all the keys.
+    """
+
+    query = "UPDATE quotation SET "
+
+    for key in data.keys():
+        if key == "quotationid":
+            continue    # Skip the quotationid key
+        query += key + " = %s, "
+
+    query = query[:-2]  # Remove the trailing comma and space
+    query += " WHERE quotationid = %s"
+
+    data_to_put = list(data.values())
+    quotationid = data_to_put.pop(0)  # Remove the quotationid from the data list
+
+    for i in range(len(data_to_put)):
+        if type(data_to_put[i]) == dict:
+            data_to_put[i] = json.dumps(data_to_put[i])
+
+    print(data_to_put)
+    print(query)
+
+    print(query.count("%s"))
+    print(len(data_to_put)+1)
+
+    cursor.execute(query, data_to_put + [quotationid])
+
+    return "Quotation updated successfully"
+
+def createQuotationDB(data):
+    """
+    This is db function to create a quotation in the database.
+    """
+
+    # inset the data from the request into the database
+    #create a query string using the data from the request
+
+    query="""INSERT into quotation ("""
+
+    for key in data.keys():
+        query+=key+","
+
+    query=query[:-1]+") VALUES ("
+
+    for key in data.keys():
+        query+="%s,"
+    
+    query=query[:-1]+")"
+
+    data_to_put=list(data.values())
+
+    for i in range(len(data_to_put)):
+        if type(data_to_put[i])==dict:
+            data_to_put[i]=json.dumps(data_to_put[i])
+
+    print(data_to_put)
+
+    print(query)
+
+    cursor.execute(query,data_to_put)
+
+    return "Quotation created successfully"
+
+def approvalStatusDB(quotationid, AdminApproved):
+    """
+    This is db function to update the approval status of a quotation in the database.
+    the input will be 
+    {
+    "quotationid": "INT",
+    "AdminApproved":"BOOLEAN"
+    }
+    in post request
+    we will update the AdminApproved column in the database
+    """
+
+    # update the approval status of the quotation in the database
+    cursor.execute("""UPDATE quotation SET AdminApproved = %s WHERE quotationid = %s""", (AdminApproved, quotationid))
+
+    return "Approval status updated successfully"
+
+def rejectedQuotationDB():
+    """
+    This is db function to reject a quotation in the database.
+    {
+  "quotations": [
+            {
+            "quotationid": 502,
+            "customerid": 102,
+            "name": "Alice Smith",
+            "emailAddress": "alice.smith@example.com",
+            "phoneNumber": "9876543210",
+            "deliveryDate": "2025-04-20",
+            "AdminApproved":false,
+            "itemDetails": {
+                "items": [
+                {
+                    "itemDescription": "Voltage Regulator",
+                    "partNumber": "VR-9012",
+                    "quantity": 20,
+                    "unitRateINR": 300,
+                    "note": "For power supply circuits"
+                }
+                ],
+                "notes": "Urgent delivery required."
+            }
+            }
+        ]
+        }
+    """
+
+    # getting all the quotations which are rejected by the admin
+    cursor.execute("""SELECT
+                        quotationid,
+                        customerid,
+                        name,
+                        emailAddress,
+                        phoneNumber,
+                        deliveryDate,
+                        AdminApproved,
+                        itemDetails
+                        FROM quotation WHERE AdminApproved = 0""")
+
+    rejectedQuotation = cursor.fetchall()
+
+    return rejectedQuotation
 
 def approvedQuotationDB():
     """
@@ -93,7 +225,7 @@ def getPendingApprovalQuotationsDB():
                         itemDetails,
                         created_at,
                         updated_at
-                      FROM quotation WHERE AdminApproved = 0""")
+                      FROM quotation WHERE AdminApproved = NULL""")
     pendingApprovalQuotations = cursor.fetchall()
 
     return pendingApprovalQuotations

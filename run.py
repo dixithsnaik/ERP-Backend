@@ -22,6 +22,11 @@ app.add_url_rule('/quotations/unapproved', 'unapproved_quotations', controllers.
 app.add_url_rule('/quotations/all', 'all_quotations', controllers.Quotations.getAllQuotations, methods=['GET'])
 app.add_url_rule('/quotations/pending-approval', 'pending_approval_quotations', controllers.Quotations.getPendingApprovalQuotations, methods=['GET'])
 app.add_url_rule('/quotations/approved', 'approved_quotation', controllers.Quotations.approvedQuotation, methods=['GET'])
+app.add_url_rule('/quotations/rejected', 'rejected_quotation', controllers.Quotations.rejectedQuotation, methods=['GET'])
+app.add_url_rule('/quotations/approvalstatus', 'approval_status', controllers.Quotations.approvalStatus, methods=['POST'])
+app.add_url_rule('/quotations/create', 'create_quotation', controllers.Quotations.createQuotation, methods=['POST'])
+app.add_url_rule('/quotations/update', 'update_quotation', controllers.Quotations.updateQuotation, methods=['POST'])
+
 
 
 if __name__ == '__main__':
