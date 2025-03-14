@@ -35,6 +35,47 @@ def connect_to_db():
         print(f"Error connecting to MySQL: {error}")
         return None
 
+
+# Generate fake data for company_details table
+def insert_company_details(cursor, num_records=10):
+    company_ids = []
+    gst_reg_types = ['Regular', 'Composition', 'Casual', 'Non-Resident', 'Input Service Distributor']
+    
+    for i in range(num_records):
+        company_name = fake.company()
+        email_address = f"info@{company_name.lower().replace(' ', '').replace(',', '').replace('.', '')}.com"[:255]
+        phone_number = fake.phone_number()[:20]
+        address_line1 = fake.street_address()
+        address_line2 = fake.secondary_address() if random.random() > 0.3 else None
+        
+        # Generate GST number (15 characters: 2 state code + 10 PAN + 1 entity + 1 check digit + Z)
+        state_code = str(random.randint(1, 36)).zfill(2)
+        pan_part = ''.join(random.choices(string.ascii_uppercase, k=5)) + ''.join(random.choices(string.digits, k=4)) + random.choice(string.ascii_uppercase)
+        gst_number = state_code + pan_part + str(random.randint(1, 9)) + 'Z'
+        
+        city = fake.city()
+        state = fake.state()
+        pin_code = fake.postcode()[:10]
+        
+        # Generate a different GST registration number
+        gst_registration_number = ''.join(random.choices(string.ascii_uppercase + string.digits, k=15))
+        gst_registration_type = random.choice(gst_reg_types)
+        
+        query = """
+        INSERT INTO CompanyDetails (company_name, email_address, phone_number, address_line1, address_line2, 
+                                   gst_number, city, state, pin_code, gst_registration_number, gst_registration_type)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        
+        try:
+            cursor.execute(query, (company_name, email_address, phone_number, address_line1, address_line2, 
+                                  gst_number, city, state, pin_code, gst_registration_number, gst_registration_type))
+            company_ids.append(cursor.lastrowid)
+        except mysql.connector.Error as error:
+            print(f"Error inserting company details: {error}")
+    
+    return company_ids
+
 # Generate fake data for users table
 def insert_users(cursor, num_records=30):
     user_ids = []
@@ -610,7 +651,7 @@ def print_all_tables(connection=None):
             
             # List of all tables in the database
             tables = [
-                'users', 'customer', 'rfq', 'quotation', 'EmployeeRecords',
+                'CompanyDetails' ,'users', 'customer', 'rfq', 'quotation', 'EmployeeRecords',
                 'purchase_order', 'bmo', 'annexure', 'production_slip', 
                 'vendors', 'po_outwards', 'dc', 'inventory', 'inlog', 'outlog'
             ]
@@ -704,6 +745,9 @@ def main():
     
     try:
         # Insert data into all tables
+        print("Inserting company details...")
+        company_ids = insert_company_details(cursor)
+
         print("Inserting users...")
         user_ids = insert_users(cursor)
         
