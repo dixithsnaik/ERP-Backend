@@ -2,6 +2,39 @@ import json
 
 from dataControllers.cursor import cursor
 
+def updateQuotationDB(data):
+    """
+    This is db function to update a quotation in the database.
+    It will only update the keys given to it and not all the keys.
+    """
+
+    query = "UPDATE quotation SET "
+
+    for key in data.keys():
+        if key == "quotationid":
+            continue    # Skip the quotationid key
+        query += key + " = %s, "
+
+    query = query[:-2]  # Remove the trailing comma and space
+    query += " WHERE quotationid = %s"
+
+    data_to_put = list(data.values())
+    quotationid = data_to_put.pop(0)  # Remove the quotationid from the data list
+
+    for i in range(len(data_to_put)):
+        if type(data_to_put[i]) == dict:
+            data_to_put[i] = json.dumps(data_to_put[i])
+
+    print(data_to_put)
+    print(query)
+
+    print(query.count("%s"))
+    print(len(data_to_put)+1)
+
+    cursor.execute(query, data_to_put + [quotationid])
+
+    return "Quotation updated successfully"
+
 def createQuotationDB(data):
     """
     This is db function to create a quotation in the database.

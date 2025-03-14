@@ -9,10 +9,58 @@ from dataControllers.Quotations import  (
                                         approvedQuotationDB, 
                                         rejectedQuotationDB,
                                         approvalStatusDB,
-                                        createQuotationDB
+                                        createQuotationDB,
+                                        updateQuotationDB
                                         )
 
 from dataControllers.Customers import getCustomerName
+
+def updateQuotation():
+    """
+    This function updates a quotation in the database.
+    {
+    "customerid": 101,
+    "rfqid": 202,
+    "name": "John Doe",
+    "emailAddress": "john.doe@example.com",
+    "phoneNumber": "1234567890",
+    "termsAndConditions": "Standard terms apply.",
+    "paymentTerms": "Net 30 days",
+    "taxAndDuties": "Included in price",
+    "briefDescription": "Quotation for electronic components",
+    "deliveryDate": "2025-04-15",
+    "packageAndForwarding": "Standard packaging",
+    "createdBy": 301,
+    "itemDetails": {
+        "items": [
+        {
+            "itemDescription": "Microcontroller Unit",
+            "partNumber": "MCU-1234",
+            "quantity": 10,
+            "unitRateINR": 1500,
+            "note": "High-performance MCU for industrial use"
+        },
+        {
+            "itemDescription": "Resistor Pack",
+            "partNumber": "RES-5678",
+            "quantity": 100,
+            "unitRateINR": 5,
+            "note": "Pack of 100 resistors (1kΩ)"
+        }
+        ],
+        "notes": "Bulk order, special discount applied."
+    }
+    }
+    """
+    
+    try:
+        # update the quotation in the database
+        updateQuotation = updateQuotationDB(request.json)
+        return jsonify({"updateQuotation": updateQuotation})
+
+    except Exception as e:
+        # logging.error(f"An error occurred while updating the quotation: {e}")
+        return jsonify({"error": str(e)})
 
 def createQuotation():
     """
