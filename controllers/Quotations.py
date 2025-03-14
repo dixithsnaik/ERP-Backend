@@ -2,9 +2,51 @@ from flask import request, jsonify
 import logging
 
 # internal imports
-from dataControllers.Quotations import getUnapprovedQuotationsDB, getAllQuotationsDB, getPendingApprovalQuotationsDB
+from dataControllers.Quotations import getUnapprovedQuotationsDB, getAllQuotationsDB, getPendingApprovalQuotationsDB, approvedQuotationDB
 from dataControllers.Customers import getCustomerName
 
+def approvedQuotation():
+    """
+    This function approves a quotation in the database.
+    {
+  "quotations": [
+            {
+            "quotationid": 502,
+            "customerid": 102,
+            "name": "Alice Smith",
+            "emailAddress": "alice.smith@example.com",
+            "phoneNumber": "9876543210",
+            "deliveryDate": "2025-04-20",
+            "AdminApproved": true,
+            "itemDetails": {
+                "items": [
+                {
+                    "itemDescription": "Voltage Regulator",
+                    "partNumber": "VR-9012",
+                    "quantity": 20,
+                    "unitRateINR": 300,
+                    "note": "For power supply circuits"
+                }
+                ],
+                "notes": "Urgent delivery required."
+            }
+            }
+        ]
+        }
+
+    """
+
+    try:
+        # approve the quotation in the database
+        approvedQuotation = approvedQuotationDB()
+
+        return jsonify({"approvedQuotation": approvedQuotation})
+
+    except Exception as e:
+        # logging.error(f"An error occurred while approving the quotation: {e}")
+        return jsonify({"error": str(e)})
+
+    
 
 def getPendingApprovalQuotations():
     """

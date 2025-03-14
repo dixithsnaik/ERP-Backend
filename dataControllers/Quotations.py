@@ -1,5 +1,53 @@
 from dataControllers.cursor import cursor
 
+def approvedQuotationDB():
+    """
+    This is db function to approve a quotation in the database.
+    {
+  "quotations": [
+            {
+            "quotationid": 502,
+            "customerid": 102,
+            "name": "Alice Smith",
+            "emailAddress": "alice.smith@example.com",
+            "phoneNumber": "9876543210",
+            "deliveryDate": "2025-04-20",
+            "AdminApproved": true,
+            "itemDetails": {
+                "items": [
+                {
+                    "itemDescription": "Voltage Regulator",
+                    "partNumber": "VR-9012",
+                    "quantity": 20,
+                    "unitRateINR": 300,
+                    "note": "For power supply circuits"
+                }
+                ],
+                "notes": "Urgent delivery required."
+            }
+            }
+        ]
+        }
+    """
+    
+    # getting all the quotations which are approved by the admin
+    cursor.execute("""SELECT
+                        quotationid,
+                        customerid,
+                        name,
+                        emailAddress,
+                        phoneNumber,
+                        deliveryDate,
+                        AdminApproved,
+                        itemDetails
+                        FROM quotation WHERE AdminApproved = 1""")
+
+    approvedQuotation = cursor.fetchall()
+
+    return approvedQuotation
+
+
+
 def getPendingApprovalQuotationsDB():
     """
     This is db function to fetch all quotations pending approval from the database.
