@@ -1,3 +1,4 @@
+import json
 # internal imports
 from dataControllers.cursor import cursor
 
@@ -38,8 +39,8 @@ def postRfqDetailsDB(data):
             data_to_put[i]=json.dumps(data_to_put[i])
         
         
-    print(query)
-    print(data_to_put)
+    # print(query)
+    # print(data_to_put)
 
     cursor.execute(query, data_to_put)  
     return {"message": "RFQ created successfully."} 
