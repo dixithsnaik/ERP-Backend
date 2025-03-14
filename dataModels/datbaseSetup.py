@@ -14,6 +14,7 @@ HOST = os.getenv("DB_HOST", "localhost")
 # Create Database if it doesn't exist
 def create_database():
     try:
+        print("Creating database...")
         connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST)
         cursor = connection.cursor()
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
@@ -29,7 +30,7 @@ def init_db():
     try:
         connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST, database=DB_NAME)
         cursor = connection.cursor()
-
+        print("Initializing database tables...")
         table_queries = [
             """
             CREATE TABLE IF NOT EXISTS users (
@@ -185,8 +186,8 @@ def init_db():
             """,
             """
             CREATE TABLE IF NOT EXISTS production_slip (
-                workordernumber INT PRIMARY KEY,
-                slip_number VARCHAR(50),
+                slip_number INT AUTO_INCREMENT PRIMARY KEY,
+                workordernumber INT NOT NULL,
                 project_name VARCHAR(255),
                 customer VARCHAR(255),
                 slip_date DATE,
