@@ -3,7 +3,7 @@ from flask import Flask
 import controllers.users
 from dataModels.datbaseSetup import init_db
 import logging
-from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors
+from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer
 
 
 # Configure logging
@@ -38,6 +38,12 @@ app.add_url_rule('/rfq/pending','getPendingRfqs',Rfq.getPendingRfqs, methods=["G
 app.add_url_rule('/vendors/all', 'getVendors', Vendors.getVendors, methods=['GET'])
 app.add_url_rule('/vendors/add', 'addVendor', Vendors.addVendors, methods=['POST'])
 app.add_url_rule('/vendors/update', 'updateVendor', Vendors.updateVendor, methods=['POST'])
+
+# Customer routes
+app.add_url_rule('/customers/all', 'getCustomers', Customer.getCustomers, methods=['GET'])
+app.add_url_rule('/customers/add', 'addCustomer', Customer.addCustomer, methods=['POST'])
+app.add_url_rule('/customers/update', 'updateCustomer', Customer.updateCustomer, methods=['POST'])
+
 
 if __name__ == '__main__':
     try:

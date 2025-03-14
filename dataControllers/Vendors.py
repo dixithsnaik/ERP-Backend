@@ -16,7 +16,7 @@ def getVendors():
         users = cursor.fetchall()
         return users
     except Exception as e:
-        logging.error(f"An error occurred while fetching users: {e}")
+        logging.error(f"An error occurred while fetching vendors: {e}")
         return {"error": str(e)}
 
 def addVendors(data):

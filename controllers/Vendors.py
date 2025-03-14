@@ -3,9 +3,14 @@ from flask import request, jsonify
 import logging
 from typing import List, Dict, Any
 
-def getVendors():
+def getVendors()-> Dict:
     """
     Fetches all vendor records from the database.
+
+    Args:
+        None
+    Returns:
+        dict: List of vendor records OR { "error": "Detailed error message" }    
     """
     return Vendors.getVendors()
 
@@ -60,8 +65,7 @@ def addVendors() -> Dict[str, Any]:
             return {"error": "Duplicate entry - This vendor already exists."}, 409  # 409 Conflict
         return {"error": str(e)}, 400
 
-
-def updateVendor():
+def updateVendor()->Dict[str, Any]:
 	"""This Function updates a vendor in the database, from a given list of vendor objects.
 	  Example:"
 	  {
