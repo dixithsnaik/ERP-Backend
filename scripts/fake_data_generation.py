@@ -62,7 +62,7 @@ def insert_company_details(cursor, num_records=10):
         gst_registration_type = random.choice(gst_reg_types)
         
         query = """
-        INSERT INTO CompanyDetails (company_name, email_address, phone_number, address_line1, address_line2, 
+        INSERT INTO companyDetails (company_name, email_address, phone_number, address_line1, address_line2, 
                                    gst_number, city, state, pin_code, gst_registration_number, gst_registration_type)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
@@ -651,7 +651,7 @@ def print_all_tables(connection=None):
             
             # List of all tables in the database
             tables = [
-                'CompanyDetails' ,'users', 'customer', 'rfq', 'quotation', 'EmployeeRecords',
+                'companyDetails' ,'users', 'customer', 'rfq', 'quotation', 'EmployeeRecords',
                 'purchase_order', 'bmo', 'annexure', 'production_slip', 
                 'vendors', 'po_outwards', 'dc', 'inventory', 'inlog', 'outlog'
             ]
