@@ -32,6 +32,25 @@ def init_db():
         cursor = connection.cursor()
         print("Initializing database tables...")
         table_queries = [
+             """
+            CREATE TABLE IF NOT EXISTS CompanyDetails (
+                company_id INT AUTO_INCREMENT PRIMARY KEY,
+                company_name VARCHAR(255) NOT NULL,
+                email_address VARCHAR(255) UNIQUE NOT NULL,
+                phone_number VARCHAR(20) NOT NULL,
+                address_line1 VARCHAR(255) NOT NULL,
+                address_line2 VARCHAR(255),
+                gst_number VARCHAR(50) UNIQUE NOT NULL,
+                city VARCHAR(100) NOT NULL,
+                state VARCHAR(100) NOT NULL,
+                pin_code VARCHAR(20) NOT NULL,
+                gst_registration_number VARCHAR(50) UNIQUE NOT NULL,
+                gst_registration_type VARCHAR(100) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """,
+            
             """
             CREATE TABLE IF NOT EXISTS users (
             userid INT AUTO_INCREMENT PRIMARY KEY,
