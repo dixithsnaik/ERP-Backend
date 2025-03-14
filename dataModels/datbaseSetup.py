@@ -33,7 +33,7 @@ def init_db():
         print("Initializing database tables...")
         table_queries = [
              """
-            CREATE TABLE IF NOT EXISTS CompanyDetails (
+            CREATE TABLE IF NOT EXISTS companyDetails (
                 company_id INT AUTO_INCREMENT PRIMARY KEY,
                 company_name VARCHAR(255) NOT NULL,
                 email_address VARCHAR(255) UNIQUE NOT NULL,
