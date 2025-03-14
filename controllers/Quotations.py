@@ -2,8 +2,50 @@ from flask import request, jsonify
 import logging
 
 # internal imports
-from dataControllers.Quotations import getUnapprovedQuotationsDB
+from dataControllers.Quotations import getUnapprovedQuotationsDB, getAllQuotationsDB
 from dataControllers.Customers import getCustomerName
+
+
+def getAllQuotations():
+    """
+    This function fetches all the quotations from the database and returns them as a JSON object.
+    {
+  "quotations": [
+            {
+            "quotationid": 501,
+            "customerid": 101,
+            "name": "John Doe",
+            "emailAddress": "john.doe@example.com",
+            "phoneNumber": "1234567890",
+            "deliveryDate": "2025-04-15",
+            "AdminApproved": null,
+            "itemDetails": {
+                "items": [
+                {
+                    "itemDescription": "Microcontroller Unit",
+                    "partNumber": "MCU-1234",
+                    "quantity": 10,
+                    "unitRateINR": 1500,
+                    "note": "High-performance MCU for industrial use"
+                }
+                ],
+                "notes": "Bulk order, special discount applied."
+            }
+            }
+        ]
+        }
+    """
+
+    try:
+        # fetch all quotations from the database
+        allQuotations = getAllQuotationsDB()
+
+        return jsonify({"quotations": allQuotations})
+
+    except Exception as e:
+        # logging.error(f"An error occurred while fetching all quotations: {e}")
+        return jsonify({"error": str(e)})
+
 
 def getUnapprovedQuotations():
     """

@@ -19,6 +19,7 @@ app.add_url_rule('/pendingpos', 'pendingpos', controllers.PurchaseOrdersIn.getPe
 
 # Quotations routes
 app.add_url_rule('/quotations/unapproved', 'unapproved_quotations', controllers.Quotations.getUnapprovedQuotations, methods=['GET'])
+app.add_url_rule('/quotations/all', 'all_quotations', controllers.Quotations.getAllQuotations, methods=['GET'])
 
 
 if __name__ == '__main__':
