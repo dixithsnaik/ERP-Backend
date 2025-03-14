@@ -2,7 +2,7 @@ from flask import Flask
 import controllers.users
 from dataModels.datbaseSetup import init_db
 import logging
-from controllers import greet, users, PurchaseOrdersIn
+from controllers import greet, users, PurchaseOrdersIn, Quotations
 
 
 # Configure logging
@@ -16,6 +16,9 @@ app.add_url_rule('/users', 'users', users.getUsers)
 
 # PO routes
 app.add_url_rule('/pendingpos', 'pendingpos', controllers.PurchaseOrdersIn.getPendingPOs, methods=['GET'])
+
+# Quotations routes
+app.add_url_rule('/quotations/unapproved', 'unapproved_quotations', controllers.Quotations.getUnapprovedQuotations, methods=['GET'])
 
 
 if __name__ == '__main__':

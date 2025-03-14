@@ -9,7 +9,16 @@ poetry install
 ```
 
 note :- before running this 
-you need to create a db with name ` ERPDB `
+make sure you have installed mysql in your system and also
+then
+```bash
+sudo mysql -u root -p
+```
+
+then you need to create a db with name ` ERPDB `
+```bash
+CREATE DATABASE ERPDB;
+```
 
 3. Run the following command to run the project:
 ```bash

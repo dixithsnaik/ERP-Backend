@@ -26,4 +26,4 @@ connection = mysql.connector.connect(
 
 connection.autocommit = True
 
-cursor = connection.cursor()
+cursor = connection.cursor(dictionary=True)
