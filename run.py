@@ -1,8 +1,9 @@
+import controllers.Rfq
 from flask import Flask
 import controllers.users
 from dataModels.datbaseSetup import init_db
 import logging
-from controllers import greet, users, PurchaseOrdersIn, Quotations
+from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq 
 
 
 # Configure logging
@@ -27,6 +28,11 @@ app.add_url_rule('/quotations/approvalstatus', 'approval_status', controllers.Qu
 app.add_url_rule('/quotations/create', 'create_quotation', controllers.Quotations.createQuotation, methods=['POST'])
 app.add_url_rule('/quotations/update', 'update_quotation', controllers.Quotations.updateQuotation, methods=['POST'])
 
+
+# RFQ routes
+app.add_url_rule('/rfq/create','createRfq',Rfq.createRfq, methods=["POST"])
+app.add_url_rule('/rfq/all','fetchAllRfqs',Rfq.fetchAllRfqs, methods=["GET"])
+app.add_url_rule('/rfq/pending','getPendingRfqs',Rfq.getPendingRfqs, methods=["GET"])
 
 
 if __name__ == '__main__':
