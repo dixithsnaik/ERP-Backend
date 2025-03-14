@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 import json
 from faker import Faker
 import string
-
+import os
+import pandas as pd
+from tabulate import tabulate
 # Database Credentials (Use environment variables)
 DB_NAME = os.getenv("DB_NAME", "ERPDB")
 USER = os.getenv("DB_USER", "root")
@@ -202,7 +204,7 @@ def insert_quotations(cursor, customer_ids, rfq_ids, user_ids, num_records=30):
         for j in range(random.randint(1, 5)):
             item = {
                 "itemId": j + 1,
-                "description": fake.product_name(),
+                "description": fake.word(),
                 "quantity": random.randint(1, 100),
                 "unitPrice": round(random.uniform(10, 1000), 2),
                 "totalPrice": 0
@@ -288,7 +290,7 @@ def insert_purchase_orders(cursor, customer_ids, quotation_ids, employee_ids, nu
         for j in range(random.randint(1, 5)):
             item = {
                 "itemId": j + 1,
-                "description": fake.product_name(),
+                "description": fake.word(),
                 "quantity": random.randint(1, 100),
                 "unitPrice": round(random.uniform(10, 1000), 2),
                 "totalPrice": 0
@@ -359,34 +361,20 @@ def insert_bmos(cursor, purchase_order_ids, num_records=15):
 # Generate fake data for annexure table
 def insert_annexures(cursor, vendor_ids, num_records=30):
     annexure_ids = []
-    annexure_types = ['Type A', 'Type B', 'Type C', 'Special', 'Standard']
-    processes = ['Manufacturing', 'Assembly', 'Testing', 'Packaging', 'Quality Control']
-    goods_types = ['Electronics', 'Mechanical', 'Chemical', 'Textile', 'Food']
-    status_options = ['Approve', 'Reject', 'Pending']
+    annexure_types = ['Type A', 'Type B', 'Type C']
+    processes = ['Process 1', 'Process 2', 'Process 3']
     
     for i in range(num_records):
-        annexure_number = f"ANX-{fake.uuid4()[:8].upper()}"
+        annexure_number = f"ANN-{fake.uuid4()[:8].upper()}"
         annexure_type = random.choice(annexure_types)
         process = random.choice(processes)
-        type_of_goods = random.choice(goods_types)
-        vendor_id = random.choice(vendor_ids) if random.random() > 0.2 else None
-        status = random.choice(status_options)
+        type_of_goods = fake.bs()
+        vendor_id = random.choice(vendor_ids)
+        status = random.choice(['Approve', 'Reject', 'Pending'])
         
-        # Create AOSN details as JSON
-        aosn_details = []
-        for j in range(random.randint(1, 3)):
-            detail = {
-                "id": j + 1,
-                "name": fake.word(),
-                "specification": fake.sentence(),
-                "quantity": random.randint(1, 100),
-                "remarks": fake.sentence() if random.random() > 0.5 else ""
-            }
-            aosn_details.append(detail)
-        
-        logs = fake.paragraphs(nb=2) if random.random() > 0.3 else None
-        
-        aosn_details_json = json.dumps(aosn_details)
+        # Generate aosn_details and logs as JSON strings
+        aosn_details_json = json.dumps([{"detail": fake.text(), "timestamp": fake.date_time().isoformat()}])
+        logs = json.dumps([{"action": fake.text(), "timestamp": fake.date_time().isoformat()}])
         
         query = """
         INSERT INTO annexure (annexure_number, annexure_type, process, type_of_goods, vendorsid, status, aosn_details, logs)
@@ -394,7 +382,8 @@ def insert_annexures(cursor, vendor_ids, num_records=30):
         """
         
         try:
-            cursor.execute(query, (annexure_number, annexure_type, process, type_of_goods, vendor_id, status, aosn_details_json, logs))
+            cursor.execute(query, (annexure_number, annexure_type, process, type_of_goods,
+                                   vendor_id, status, aosn_details_json, logs))
             annexure_ids.append(cursor.lastrowid)
         except mysql.connector.Error as error:
             print(f"Error inserting annexure: {error}")
@@ -402,38 +391,39 @@ def insert_annexures(cursor, vendor_ids, num_records=30):
     return annexure_ids
 
 # Generate fake data for production_slip table
-def insert_production_slips(cursor, purchase_order_ids, num_records=20):
+def insert_production_slips(cursor, purchase_order_ids, num_records=30):
     production_slip_ids = []
-    
-    # Select a subset of purchase orders to create production slips
-    selected_po_ids = random.sample(purchase_order_ids, min(num_records, len(purchase_order_ids)))
-    
-    for po_id in selected_po_ids:
-        slip_number = f"SLIP-{fake.uuid4()[:8].upper()}"
-        project_name = fake.catch_phrase()
-        customer = fake.company()
+
+    for i in range(num_records):
+        po_id = random.choice(purchase_order_ids)
+        project_name = fake.company()
+        customer = fake.name()
         slip_date = fake.date_between(start_date='-30d', end_date='+30d')
-        project_engineer = fake.name()
-        quality_engineer = fake.name()
-        store = random.choice(["Main Store", "Secondary Store", "External Warehouse"])
-        account = random.choice(["Account A", "Account B", "Account C", "Special Account"])
-        special_instruction = fake.paragraph() if random.random() > 0.4 else None
-        logs = fake.paragraphs(nb=2) if random.random() > 0.3 else None
-        
+
+        # Convert lists to strings using join
+        project_engineer = ', '.join([fake.name() for _ in range(2)])
+        quality_engineer = ', '.join([fake.name() for _ in range(2)])
+
+        store = fake.city()
+        account = fake.name()
+        special_instruction = fake.text()
+        logs = fake.text()
+
         query = """
-        INSERT INTO production_slip (workordernumber, slip_number, project_name, customer, slip_date, project_engineer, 
-                                   quality_engineer, store, account, special_instruction, logs)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO production_slip (workordernumber, project_name, customer, slip_date, project_engineer,
+                                    quality_engineer, store, account, special_instruction, logs)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        
+
         try:
-            cursor.execute(query, (po_id, slip_number, project_name, customer, slip_date, project_engineer, 
-                                 quality_engineer, store, account, special_instruction, logs))
-            production_slip_ids.append(po_id)
+            cursor.execute(query, (po_id, project_name, customer, slip_date, project_engineer,
+                                  quality_engineer, store, account, special_instruction, logs))
+            production_slip_ids.append(cursor.lastrowid)
         except mysql.connector.Error as error:
             print(f"Error inserting production slip: {error}")
-    
+
     return production_slip_ids
+
 
 # Generate fake data for po_outwards table
 def insert_po_outwards(cursor, employee_ids, vendor_ids, annexure_ids, purchase_order_ids, num_records=30):
@@ -453,7 +443,7 @@ def insert_po_outwards(cursor, employee_ids, vendor_ids, annexure_ids, purchase_
         for j in range(random.randint(1, 5)):
             item = {
                 "itemId": j + 1,
-                "description": fake.product_name(),
+                "description": fake.word(),
                 "quantity": random.randint(1, 100),
                 "unitPrice": round(random.uniform(10, 1000), 2),
                 "totalPrice": 0
@@ -504,7 +494,7 @@ def insert_dcs(cursor, vendor_ids, po_outward_ids, num_records=25):
         for j in range(random.randint(1, 5)):
             item = {
                 "itemId": j + 1,
-                "description": fake.product_name(),
+                "description": fake.word(),
                 "quantity": random.randint(1, 100),
                 "unitPrice": round(random.uniform(10, 1000), 2),
                 "totalPrice": 0
@@ -585,6 +575,120 @@ def insert_inventory_and_logs(cursor, po_outward_ids, purchase_order_ids, num_re
         except mysql.connector.Error as error:
             print(f"Error inserting outlog: {error}")
 
+def print_all_tables(connection=None):
+    """
+    Print data from all tables in the database.
+    
+    Args:
+        connection: An existing database connection. If None, will attempt to create a new connection.
+    """
+    close_connection = False
+    
+    try:
+        # Import required libraries if not already imported
+        import pandas as pd
+        from tabulate import tabulate
+        
+        # Use existing connection if provided, otherwise create a new one
+        if connection is None:
+            import mysql.connector
+            connection = mysql.connector.connect(
+                host=HOST,
+                user=USER,
+                password=PASSWORD,
+                database=DB_NAME
+            )
+            close_connection = True
+        
+        if connection.is_connected():
+            cursor = connection.cursor(dictionary=True)
+            
+            # List of all tables in the database
+            tables = [
+                'users', 'customer', 'rfq', 'quotation', 'EmployeeRecords',
+                'purchase_order', 'bmo', 'annexure', 'production_slip', 
+                'vendors', 'po_outwards', 'dc', 'inventory', 'inlog', 'outlog'
+            ]
+            
+            # Select all records from each table
+            for table in tables:
+                try:
+                    print(f"\n{'='*80}")
+                    print(f"Data from {table} table:")
+                    print(f"{'='*80}")
+                    
+                    # Get column names first to handle table structure
+                    cursor.execute(f"SHOW COLUMNS FROM {table}")
+                    columns = [column['Field'] for column in cursor.fetchall()]
+                    
+                    # Add pagination for large tables
+                    page_size = 3
+                    offset = 0
+                    has_more = True
+                    total_records = 0
+                    
+                    # Get total count first
+                    cursor.execute(f"SELECT COUNT(*) as count FROM {table}")
+                    total_count = cursor.fetchone()['count']
+                    
+                    if total_count == 0:
+                        print("No records found.")
+                        continue
+                    
+                    while has_more:
+                        # Fetch data with pagination
+                        cursor.execute(f"SELECT * FROM {table} LIMIT {page_size} OFFSET {offset}")
+                        results = cursor.fetchall()
+                        
+                        if not results:
+                            break
+                            
+                        # Display records only for the first page
+                        if offset == 0:
+                            df = pd.DataFrame(results)
+                            
+                            # Handle empty results
+                            if df.empty:
+                                print("No records found.")
+                                break
+                                
+                            # For large JSON or text fields, truncate them for display
+                            for col in df.columns:
+                                if df[col].dtype == 'object':
+                                    df[col] = df[col].astype(str).apply(
+                                        lambda x: (x[:50] + '...') if len(x) > 50 else x
+                                    )
+                            
+                            # Display the table using tabulate for better formatting
+                            print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+                        
+                        total_records += len(results)
+                        offset += page_size
+                        has_more = len(results) == page_size
+                    
+                    print(f"\nTotal records: {total_count} (Displayed: {min(total_records, page_size)} records)")
+                    
+                    # If there are more records than displayed, inform the user
+                    if total_count > page_size:
+                        print(f"Note: Only showing first {page_size} of {total_count} records to prevent excessive output.")
+                
+                except Exception as e:
+                    print(f"Error reading from {table}: {e}")
+            
+            cursor.close()
+    
+    except ImportError as e:
+        print(f"Missing required library: {e}")
+        print("Please install required libraries: pip install mysql-connector-python pandas tabulate")
+    
+    except Exception as e:
+        print(f"Error: {e}")
+    
+    finally:
+        # Only close the connection if we created it in this function
+        if close_connection and connection and connection.is_connected():
+            connection.close()
+
 # Main function to run everything
 def main():
     connection = connect_to_db()
@@ -637,6 +741,8 @@ def main():
         # Commit the changes
         connection.commit()
         print("Data insertion completed successfully.")
+        print_all_tables(connection)
+
         
     except mysql.connector.Error as error:
         print(f"Error: {error}")
@@ -645,5 +751,5 @@ def main():
         cursor.close()
         connection.close()
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()

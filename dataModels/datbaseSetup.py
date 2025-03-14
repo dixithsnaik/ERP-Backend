@@ -186,8 +186,8 @@ def init_db():
             """,
             """
             CREATE TABLE IF NOT EXISTS production_slip (
-                workordernumber INT PRIMARY KEY,
-                slip_number VARCHAR(50),
+                slip_number INT AUTO_INCREMENT PRIMARY KEY,
+                workordernumber INT NOT NULL,
                 project_name VARCHAR(255),
                 customer VARCHAR(255),
                 slip_date DATE,
