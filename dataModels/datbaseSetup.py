@@ -291,10 +291,13 @@ def init_db():
                 meterialid INT,
                 goodid INT,
                 itemid INT,
-                Available_Quantity INT,
-                
-                PRIMARY KEY (meterialid, goodid, itemid)
-            )
+                quantity INT CHECK (quantity >= 0),
+                average_price DECIMAL(15,2),
+                PRIMARY KEY (meterialid, goodid, itemid),
+                FOREIGN KEY (meterialid) REFERENCES meterial(meterialid),
+                FOREIGN KEY (goodid) REFERENCES goods(goodid),
+                FOREIGN KEY (itemid) REFERENCES items(itemid)
+            );
             """,
             """
             CREATE TABLE IF NOT EXISTS inlog (
@@ -302,22 +305,53 @@ def init_db():
                 goodid INT,
                 itemid INT,
                 pooutid INT,
+                quantity INT CHECK (quantity >= 0),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (meterialid, goodid, itemid, pooutid),
-                FOREIGN KEY (meterialid, goodid, itemid) REFERENCES inventory(meterialid, goodid, itemid) ON DELETE CASCADE,
-                FOREIGN KEY (pooutid) REFERENCES po_outwards(pooutid) ON DELETE CASCADE
-            )
+                FOREIGN KEY (pooutid) REFERENCES po_outwards(pooutid)
+            );    
             """,
             """
             CREATE TABLE IF NOT EXISTS outlog (
                 meterialid INT,
                 goodid INT,
                 itemid INT,
+                quantity INT CHECK (quantity >= 0),
                 workordernumber INT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (meterialid, goodid, itemid, workordernumber),
-                FOREIGN KEY (meterialid, goodid, itemid) REFERENCES inventory(meterialid, goodid, itemid) ON DELETE CASCADE,
-                FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE
-            )
+                FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber)
+            );
+            """,
             """
+            CREATE TABLE IF NOT EXISTS meterial (
+                meterialid INT AUTO_INCREMENT PRIMARY KEY,
+                meterial_name VARCHAR(255) NOT NULL UNIQUE,
+                meterial_description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS goods (
+                goodid INT AUTO_INCREMENT PRIMARY KEY,
+                good_name VARCHAR(255) NOT NULL UNIQUE,
+                good_description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS items (
+                itemid INT AUTO_INCREMENT PRIMARY KEY,
+                item_name VARCHAR(255) NOT NULL UNIQUE,
+                item_description TEXT,
+                hsncode VARCHAR(50),
+                unit VARCHAR(50) NOT NULL Check(unit <> ""),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
         ]
 
         for query in table_queries:
