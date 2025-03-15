@@ -652,8 +652,8 @@ def print_all_tables(connection=None):
             # List of all tables in the database
             tables = [
                 'companyDetails' ,'users', 'customer', 'rfq', 'quotation', 'EmployeeRecords',
-                'purchase_order', 'bmo', 'annexure', 'production_slip', 
-                'vendors', 'po_outwards', 'dc', 'inventory', 'inlog', 'outlog'
+                'purchase_order', 'bmo', 'production_slip', 
+                'vendors', 'po_outwards', 'annexure','dc', 'inventory', 'inlog', 'outlog'
             ]
             
             # Select all records from each table
@@ -772,14 +772,14 @@ def main():
         print("Inserting BMOs...")
         bmo_ids = insert_bmos(cursor, purchase_order_ids)
         
-        print("Inserting annexures...")
-        annexure_ids = insert_annexures(cursor, vendor_ids)
-        
         print("Inserting production slips...")
         production_slip_ids = insert_production_slips(cursor, purchase_order_ids)
         
         print("Inserting PO outwards...")
         po_outward_ids = insert_po_outwards(cursor, employee_ids, vendor_ids, annexure_ids, purchase_order_ids)
+
+        print("Inserting annexures...")
+        annexure_ids = insert_annexures(cursor, vendor_ids)
         
         print("Inserting DCs...")
         dc_ids = insert_dcs(cursor, vendor_ids, po_outward_ids)

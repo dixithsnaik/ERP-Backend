@@ -187,22 +187,7 @@ def init_db():
                 FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE
             )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """,
-            """
-            CREATE TABLE IF NOT EXISTS annexure (
-                annexureid INT AUTO_INCREMENT PRIMARY KEY,
-                annexure_number VARCHAR(50),
-                annexure_type VARCHAR(50),
-                process VARCHAR(255),
-                type_of_goods VARCHAR(255),
-                vendorsid INT,
-                status ENUM('Approve', 'Reject', 'Pending') DEFAULT 'Pending',
-                aosn_details JSON, 
-                logs TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-            """,
+           
             """
             CREATE TABLE IF NOT EXISTS production_slip (
                 slip_number INT AUTO_INCREMENT PRIMARY KEY,
@@ -239,6 +224,28 @@ def init_db():
                 INDEX idx_state (state)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """,
+            """     
+            CREATE TABLE IF NOT EXISTS annexure (
+                annexureid INT AUTO_INCREMENT PRIMARY KEY,
+                annexure_type VARCHAR(50),
+                employeeid INT,
+                workordernumber INT,
+                vendorsid INT,
+                statusManagerId INT NULL DEFAULT NULL,
+                statusManager BOOLEAN NULL DEFAULT NULL,
+                statusAdminId INT NULL DEFAULT NULL,
+                statusAdmin BOOLEAN NULL DEFAULT NULL,
+                item_details JSON, 
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (employeeid) REFERENCES EmployeeRecords(employeeid) ON DELETE SET NULL,
+                FOREIGN KEY (vendorsid) REFERENCES vendors(vendorsid) ON DELETE CASCADE
+                FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE,
+                FOREIGN KEY (statusManagerId) REFERENCES EmployeeRecords(employeeid) ON DELETE SET NULL,
+                FOREIGN KEY (statusAdminId) REFERENCES EmployeeRecords(employeeid) ON DELETE SET NULL
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """
+            ,
             """
             CREATE TABLE IF NOT EXISTS po_outwards (
                 pooutid INT AUTO_INCREMENT PRIMARY KEY,
