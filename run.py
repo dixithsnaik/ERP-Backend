@@ -5,6 +5,7 @@ import logging
 from dataModels.datbaseSetup import init_db
 import logging
 from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer, company, PurchaseOrdersOut, Employees
+from Utils import employeeName, vendorName, Customers
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

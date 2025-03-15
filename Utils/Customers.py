@@ -10,7 +10,6 @@ def getCustomerName(customer_id):
     :return: The name of the customer (str)
     """
     try:
-        print(f"customer_id: {customer_id}")
         cursor.execute(f"""SELECT customerName FROM customer WHERE customerid={customer_id}""")
         customerName = cursor.fetchone()
         return customerName["customerName"]
