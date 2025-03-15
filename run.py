@@ -3,7 +3,8 @@ import logging
 
 # internal imports
 from dataModels.datbaseSetup import init_db
-from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, company
+import logging
+from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer, company, PurchaseOrdersOut
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -33,10 +34,24 @@ app.add_url_rule('/rfq/create','createRfq',Rfq.createRfq, methods=["POST"])
 app.add_url_rule('/rfq/all','fetchAllRfqs',Rfq.fetchAllRfqs, methods=["GET"])
 app.add_url_rule('/rfq/pending','getPendingRfqs',Rfq.getPendingRfqs, methods=["GET"])
 
+# Vendors routes
+app.add_url_rule('/vendors/all', 'getVendors', Vendors.getVendors, methods=['GET'])
+app.add_url_rule('/vendors/add', 'addVendor', Vendors.addVendors, methods=['POST'])
+app.add_url_rule('/vendors/update', 'updateVendor', Vendors.updateVendor, methods=['POST'])
+
+# Customer routes
+app.add_url_rule('/customers/all', 'getCustomers', Customer.getCustomers, methods=['GET'])
+app.add_url_rule('/customers/add', 'addCustomer', Customer.addCustomer, methods=['POST'])
+app.add_url_rule('/customers/update', 'updateCustomer', Customer.updateCustomer, methods=['POST'])
+
 # Company routes
 app.add_url_rule('/company/details','companyDetails',company.getCompanyDetails, methods=["GET"])
 app.add_url_rule('/company/update','updateCompanyDetails',company.updateCompanyDetails, methods=["POST"])
 
+# purchase order (outwards) routes
+app.add_url_rule('/po/outwards/pending', '', PurchaseOrdersOut.getPending, methods=['GET'])
+app.add_url_rule('/po/outwards/unapproved', '', PurchaseOrdersOut.getUnapproved, methods=['GET'])
+app.add_url_rule('/po/outwards/rejected', '', PurchaseOrdersOut.getRejected, methods=['GET'])
 
 if __name__ == '__main__':
     try:
