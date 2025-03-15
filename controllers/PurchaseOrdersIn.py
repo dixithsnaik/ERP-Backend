@@ -1,6 +1,7 @@
 # flask and other python imports
 from flask import request, jsonify
 import logging
+import json
 
 # internal imports
 from dataControllers.PurchaseOrdersIn import (  
@@ -217,7 +218,26 @@ def fetchWO():
         workOrderNumber = request.args.get("workOrderNumber")
 
         # first fetch the work order from the database
-        workOrder = fetchWO(workOrderNumber)
+        workOrder = fetchWODB(int(workOrderNumber))
+
+        # parse the item details json ,
+        # total_amount and unit_price remove them
+        # items_details is list
+
+        print(workOrder)
+
+        workOrder["item_details"] = json.loads(workOrder["item_details"])
+        for item in workOrder["item_details"]:
+            if "total_amount" in item:
+                item.pop("total_amount")
+            if "unit_price" in item:
+                item.pop("unit_price")
+
+        # get the customer name
+        customerName = getCustomerName(workOrder["customerid"])
+        workOrder["customerName"] = customerName
+
+
 
         return jsonify({"workOrder": workOrder})
     

@@ -163,8 +163,15 @@ def createPODB(data):
 
 def fetchWODB(workOrderNumber):
     try:
-        cursor.execute("""SELECT *
-                         FROM work_order WHERE workordernumber=%s
+        cursor.execute("""SELECT workordernumber,
+                                 item_details,
+                                 customerid,
+                                 work_order_issue_date,
+                                 project_engineers,
+                                 quality_engineers,
+                                 delivery_date,
+                                 instructions_for_delivery
+                         FROM purchase_order WHERE workordernumber=%s
                          """, (workOrderNumber,))
         workOrder = cursor.fetchone()
 
