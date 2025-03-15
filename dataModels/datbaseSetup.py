@@ -182,13 +182,6 @@ def init_db():
 
             """,
             """
-            CREATE TABLE IF NOT EXISTS bmo (
-                workordernumber INT PRIMARY KEY,
-                FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-            """,
-           
-            """
             CREATE TABLE IF NOT EXISTS production_slip (
                 slip_number INT AUTO_INCREMENT PRIMARY KEY,
                 workordernumber INT NOT NULL,
@@ -352,6 +345,16 @@ def init_db():
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             );
             """,
+            """
+            CREATE TABLE IF NOT EXISTS bom(
+                bomid INT AUTO_INCREMENT PRIMARY KEY,
+                workordernumber INT,
+                gcp_bucket VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE
+            )
+            """
         ]
 
         for query in table_queries:
