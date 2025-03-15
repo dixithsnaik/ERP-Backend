@@ -420,27 +420,6 @@ def insert_purchase_orders(cursor, customer_ids, quotation_ids, employee_ids, nu
     
     return purchase_order_ids
 
-# Generate fake data for BMO table
-def insert_bmos(cursor, purchase_order_ids, num_records=15):
-    bmo_ids = []
-    
-    # Select a subset of purchase orders to create BMOs
-    selected_po_ids = random.sample(purchase_order_ids, min(num_records, len(purchase_order_ids)))
-    
-    for po_id in selected_po_ids:
-        query = """
-        INSERT INTO bmo (workordernumber)
-        VALUES (%s)
-        """
-        
-        try:
-            cursor.execute(query, (po_id,))
-            bmo_ids.append(po_id)
-        except mysql.connector.Error as error:
-            print(f"Error inserting BMO: {error}")
-    
-    return bmo_ids
-
 def insert_annexures(cursor, vendor_ids, employee_ids, workorder_ids, num_records=30):
     annexure_ids = []
     annexure_types = ['Job Work', 'Purchase']
@@ -525,7 +504,7 @@ def insert_po_outwards(cursor, employee_ids, vendor_ids, annexure_ids, purchase_
         type_of_goods = random.choice(good_types)
         delivery_date = fake.date_between(start_date='+1d', end_date='+60d')
         status = random.choice([True, False, None])
-        approval_status = random.choice([True, False, None])
+        approval_status = random.choice([True, False])
         
         # Create item details as JSON
         items = []
@@ -610,59 +589,113 @@ def insert_dcs(cursor, vendor_ids, po_outward_ids, num_records=25):
     
     return dc_ids
 
-# Generate fake data for inventory, inlog, and outlog tables
-def insert_inventory_and_logs(cursor, po_outward_ids, purchase_order_ids, num_records=30):
-    # Create inventory items
-    inventory_items = []
+# Generate fake data for the BOM table
+def insert_boms(cursor, purchase_order_ids, num_records=15):
+    bom_ids = []
     
-    for i in range(num_records):
-        material_id = random.randint(1, 100)
-        good_id = random.randint(1, 50)
-        item_id = random.randint(1, 200)
-        available_quantity = random.randint(10, 1000)
-        
-        # Add to list for later use
-        inventory_items.append((material_id, good_id, item_id))
-        
+    # Select a subset of purchase orders to create BOMs
+    selected_po_ids = random.sample(purchase_order_ids, min(num_records, len(purchase_order_ids)))
+    
+    for po_id in selected_po_ids:
         query = """
-        INSERT INTO inventory (meterialid, goodid, itemid, Available_Quantity)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO bom (workordernumber, gcp_bucket) 
+        VALUES (%s, %s)
         """
         
+        gcp_bucket = f"gs://bucket-{random.randint(1, 1000)}"
+        
         try:
-            cursor.execute(query, (material_id, good_id, item_id, available_quantity))
+            cursor.execute(query, (po_id, gcp_bucket))
+            bom_ids.append(cursor.lastrowid)
+        except mysql.connector.Error as error:
+            print(f"Error inserting BOM: {error}")
+    
+    return bom_ids
+
+def insert_inventory_data(cursor, po_outward_ids, purchase_order_ids, num_materials=50, num_goods=30, num_items=40, num_inventory=30):
+    # Step 1: Insert Materials
+    material_ids = []
+    for _ in range(num_materials):
+        material_name = f"Material-{random.randint(1000, 9999)}"
+        material_description = f"Description for {material_name}"
+        
+        query = "INSERT INTO meterial (meterial_name, meterial_description) VALUES (%s, %s)"
+        try:
+            cursor.execute(query, (material_name, material_description))
+            material_ids.append(cursor.lastrowid)
+        except mysql.connector.Error as error:
+            print(f"Error inserting material: {error}")
+
+    # Step 2: Insert Goods
+    good_ids = []
+    for _ in range(num_goods):
+        good_name = f"Good-{random.randint(1000, 9999)}"
+        good_description = f"Description for {good_name}"
+        
+        query = "INSERT INTO goods (good_name, good_description) VALUES (%s, %s)"
+        try:
+            cursor.execute(query, (good_name, good_description))
+            good_ids.append(cursor.lastrowid)
+        except mysql.connector.Error as error:
+            print(f"Error inserting goods: {error}")
+
+    # Step 3: Insert Items
+    item_ids = []
+    for _ in range(num_items):
+        item_name = f"Item-{random.randint(1000, 9999)}"
+        item_description = f"Description for {item_name}"
+        hsncode = f"HSN-{random.randint(1000, 9999)}"
+        unit = random.choice(["kg", "piece", "box", "meter"])
+        
+        query = "INSERT INTO items (item_name, item_description, hsncode, unit) VALUES (%s, %s, %s, %s)"
+        try:
+            cursor.execute(query, (item_name, item_description, hsncode, unit))
+            item_ids.append(cursor.lastrowid)
+        except mysql.connector.Error as error:
+            print(f"Error inserting items: {error}")
+
+    # Step 4: Insert Inventory
+    inventory_items = []
+    for _ in range(num_inventory):
+        material_id = random.choice(material_ids)
+        good_id = random.choice(good_ids)
+        item_id = random.choice(item_ids)
+        quantity = random.randint(10, 1000)
+        average_price = round(random.uniform(10, 5000), 2)
+        
+        inventory_items.append((material_id, good_id, item_id))
+        
+        query = "INSERT INTO inventory (meterialid, goodid, itemid, quantity, average_price) VALUES (%s, %s, %s, %s, %s)"
+        try:
+            cursor.execute(query, (material_id, good_id, item_id, quantity, average_price))
         except mysql.connector.Error as error:
             print(f"Error inserting inventory: {error}")
-    
-    # Create inlogs for some inventory items
+
+    # Step 5: Insert Inlog
     for i in range(min(len(inventory_items), len(po_outward_ids))):
         material_id, good_id, item_id = inventory_items[i]
         po_outward_id = po_outward_ids[i]
+        quantity = random.randint(5, 500)
         
-        query = """
-        INSERT INTO inlog (meterialid, goodid, itemid, pooutid)
-        VALUES (%s, %s, %s, %s)
-        """
-        
+        query = "INSERT INTO inlog (meterialid, goodid, itemid, pooutid, quantity) VALUES (%s, %s, %s, %s, %s)"
         try:
-            cursor.execute(query, (material_id, good_id, item_id, po_outward_id))
+            cursor.execute(query, (material_id, good_id, item_id, po_outward_id, quantity))
         except mysql.connector.Error as error:
             print(f"Error inserting inlog: {error}")
-    
-    # Create outlogs for some inventory items
+
+    # Step 6: Insert Outlog
     for i in range(min(len(inventory_items), len(purchase_order_ids))):
         material_id, good_id, item_id = inventory_items[i]
         workorder_number = purchase_order_ids[i]
+        quantity = random.randint(5, 500)
         
-        query = """
-        INSERT INTO outlog (meterialid, goodid, itemid, workordernumber)
-        VALUES (%s, %s, %s, %s)
-        """
-        
+        query = "INSERT INTO outlog (meterialid, goodid, itemid, workordernumber, quantity) VALUES (%s, %s, %s, %s, %s)"
         try:
-            cursor.execute(query, (material_id, good_id, item_id, workorder_number))
+            cursor.execute(query, (material_id, good_id, item_id, workorder_number, quantity))
         except mysql.connector.Error as error:
             print(f"Error inserting outlog: {error}")
+
+    print("✅ Inventory data inserted successfully!")
 
 def print_all_tables(connection=None):
     """
@@ -695,7 +728,7 @@ def print_all_tables(connection=None):
             # List of all tables in the database
             tables = [
                 'companyDetails' ,'users', 'customer', 'rfq', 'quotation', 'EmployeeRecords',
-                'purchase_order', 'bmo', 'production_slip', 
+                'purchase_order', 'bom', 'production_slip', 
                 'vendors', 'po_outwards', 'annexure','dc', 'inventory', 'inlog', 'outlog'
             ]
             
@@ -812,9 +845,6 @@ def main():
         print("Inserting purchase orders...")
         purchase_order_ids = insert_purchase_orders(cursor, customer_ids, quotation_ids, employee_ids)
         
-        print("Inserting BMOs...")
-        bmo_ids = insert_bmos(cursor, purchase_order_ids)
-        
         print("Inserting production slips...")
         production_slip_ids = insert_production_slips(cursor, purchase_order_ids)
         
@@ -828,7 +858,12 @@ def main():
         dc_ids = insert_dcs(cursor, vendor_ids, po_outward_ids)
         
         print("Inserting inventory and logs...")
-        insert_inventory_and_logs(cursor, po_outward_ids, purchase_order_ids)
+        insert_inventory_data(cursor, po_outward_ids, purchase_order_ids)
+
+        print("Inserting BOMs...")
+        bom_ids = insert_boms(cursor, purchase_order_ids)
+
+
         
         # Commit the changes
         connection.commit()

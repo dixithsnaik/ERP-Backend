@@ -185,13 +185,6 @@ def init_db():
 
             """,
             """
-            CREATE TABLE IF NOT EXISTS bmo (
-                workordernumber INT PRIMARY KEY,
-                FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-            """,
-           
-            """
             CREATE TABLE IF NOT EXISTS production_slip (
                 slip_number INT AUTO_INCREMENT PRIMARY KEY,
                 workordernumber INT NOT NULL,
@@ -259,12 +252,13 @@ def init_db():
                 typeofgoods VARCHAR(255),
                 delivery_date DATE,
                 status BOOLEAN,
-                approval_status BOOLEAN,
+                approval_status BOOLEAN NOT NULL DEFAULT FALSE,
                 itemDetails JSON,
                 remarks TEXT,
                 vendorsid INT NULL,
                 annexureid INT NULL,
                 workordernumber INT NULL,
+                jobwork BOOLEAN NOT NULL DEFAULT FALSE,
                 FOREIGN KEY (employeeid) REFERENCES EmployeeRecords(employeeid) ON DELETE CASCADE,
                 FOREIGN KEY (vendorsid) REFERENCES vendors(vendorsid) ON DELETE CASCADE,
                 FOREIGN KEY (annexureid) REFERENCES annexure(annexureid) ON DELETE CASCADE,
@@ -290,14 +284,46 @@ def init_db():
 
             """,
             """
+            CREATE TABLE IF NOT EXISTS meterial (
+                meterialid INT AUTO_INCREMENT PRIMARY KEY,
+                meterial_name VARCHAR(255) NOT NULL UNIQUE,
+                meterial_description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS goods (
+                goodid INT AUTO_INCREMENT PRIMARY KEY,
+                good_name VARCHAR(255) NOT NULL UNIQUE,
+                good_description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS items (
+                itemid INT AUTO_INCREMENT PRIMARY KEY,
+                item_name VARCHAR(255) NOT NULL UNIQUE,
+                item_description TEXT,
+                hsncode VARCHAR(50),
+                unit VARCHAR(50) NOT NULL Check(unit <> ""),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
+            """
             CREATE TABLE IF NOT EXISTS inventory (
                 meterialid INT,
                 goodid INT,
                 itemid INT,
-                Available_Quantity INT,
-                
-                PRIMARY KEY (meterialid, goodid, itemid)
-            )
+                quantity INT CHECK (quantity >= 0),
+                average_price DECIMAL(15,2),
+                PRIMARY KEY (meterialid, goodid, itemid),
+                FOREIGN KEY (meterialid) REFERENCES meterial(meterialid),
+                FOREIGN KEY (goodid) REFERENCES goods(goodid),
+                FOREIGN KEY (itemid) REFERENCES items(itemid)
+            );
             """,
             """
             CREATE TABLE IF NOT EXISTS inlog (
@@ -305,19 +331,31 @@ def init_db():
                 goodid INT,
                 itemid INT,
                 pooutid INT,
+                quantity INT CHECK (quantity >= 0),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (meterialid, goodid, itemid, pooutid),
-                FOREIGN KEY (meterialid, goodid, itemid) REFERENCES inventory(meterialid, goodid, itemid) ON DELETE CASCADE,
-                FOREIGN KEY (pooutid) REFERENCES po_outwards(pooutid) ON DELETE CASCADE
-            )
+                FOREIGN KEY (pooutid) REFERENCES po_outwards(pooutid)
+            );    
             """,
             """
             CREATE TABLE IF NOT EXISTS outlog (
                 meterialid INT,
                 goodid INT,
                 itemid INT,
+                quantity INT CHECK (quantity >= 0),
                 workordernumber INT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (meterialid, goodid, itemid, workordernumber),
-                FOREIGN KEY (meterialid, goodid, itemid) REFERENCES inventory(meterialid, goodid, itemid) ON DELETE CASCADE,
+                FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber)
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS bom(
+                bomid INT AUTO_INCREMENT PRIMARY KEY,
+                workordernumber INT,
+                gcp_bucket VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE
             )
             """
