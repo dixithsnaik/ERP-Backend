@@ -4,7 +4,7 @@ import logging
 
 # internal imports
 from dataControllers.PurchaseOrdersIn import getPendingPOs
-from Utils.Customers import getCustomerName
+from dataControllers.Customers import getCustomerName
 
 
 def getPendingPOs():

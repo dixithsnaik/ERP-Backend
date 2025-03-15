@@ -3,7 +3,7 @@ import logging
 
 # internal imports
 from dataControllers.Rfq import postRfqDetailsDB, fetchAllRfqDetailsDB
-from Utils.Customers import getCustomerName
+from dataControllers.Customers import getCustomerName
 
 def createRfq():
     """

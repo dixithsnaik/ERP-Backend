@@ -13,7 +13,7 @@ from dataControllers.Quotations import  (
                                         updateQuotationDB
                                         )
 
-from Utils.Customers import getCustomerName
+from dataControllers.Customers import getCustomerName
 
 def updateQuotation():
     """
