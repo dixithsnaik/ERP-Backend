@@ -15,8 +15,20 @@ app = Flask(__name__)
 app.add_url_rule('/hello', 'hello', greet.hello)
 app.add_url_rule('/users', 'users', users.getUsers)
 
-# PO routes
-app.add_url_rule('/pendingpos', 'pendingpos', PurchaseOrdersIn.getPendingPOs, methods=['GET'])
+# PO Inwards routes
+app.add_url_rule('/poInwards/pendingpos', 'pendingpos', PurchaseOrdersIn.getPendingPOs, methods=['GET'])
+app.add_url_rule('/poInwards/fetchPo', 'fetchPo', PurchaseOrdersIn.fetchPo, methods=['GET'])
+app.add_url_rule('/poInwards/prodcutionSlip/fetch', 'fetchProductionSlip', PurchaseOrdersIn.fetchProductionSlip, methods=['GET'])
+app.add_url_rule('/poInwards/fetchWO', 'fetchWO', PurchaseOrdersIn.fetchWO, methods=['GET'])
+app.add_url_rule('/poInwards/create', 'createPO', PurchaseOrdersIn.createPO, methods=['POST'])
+app.add_url_rule('/poInwards/updatePO', 'updatePO', PurchaseOrdersIn.updatePO, methods=['POST'])
+app.add_url_rule('/poInwards/prodcutionSlip/create', 'createProductionSlip', PurchaseOrdersIn.createProductionSlip, methods=['POST'])
+app.add_url_rule('/poInwards/prodcutionSlip/update', 'updateProductionSlip', PurchaseOrdersIn.updateProductionSlip, methods=['POST'])
+
+# Customer Acceptance routes
+app.add_url_rule('/poInwards/customerAcceptance/fetchALL', 'fetchCustomerAcceptance', PurchaseOrdersIn.fetchCustomerAcceptance, methods=['GET'])
+app.add_url_rule('/poInwards/customerAcceptance/update', 'updateCustomerAcceptance', PurchaseOrdersIn.updateCustomerAcceptance, methods=['POST'])
+
 
 # Quotations routes
 app.add_url_rule('/quotations/unapproved', 'unapproved_quotations', Quotations.getUnapprovedQuotations, methods=['GET'])
