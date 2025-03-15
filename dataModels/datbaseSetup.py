@@ -2,8 +2,6 @@ import mysql.connector
 import os
 from dotenv import load_dotenv
 
-#TODO: Add the DateOfLeaving DATE, in the EmployeeRecords table
-
 # Load environment variables
 load_dotenv()
 

@@ -124,7 +124,7 @@ def updateVendor(data):
         cursor.execute(query, tuple(values))
         connection.commit()
 
-        return {"updatedVendor": data}
+        return data
     except Exception as e:
         logging.error(f"An error occurred while updating vendor: {e}")
         return {"error": str(e)}

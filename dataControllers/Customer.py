@@ -114,7 +114,7 @@ def updateCustomer(data):
         cursor.execute(query, tuple(values))
         connection.commit()
 
-        return {"updatedCustomer": data}
+        return data
     except Exception as e:
         logging.error(f"An error occurred while updating Customer: {e}")
         return {"error": str(e)}
