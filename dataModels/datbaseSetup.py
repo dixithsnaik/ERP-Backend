@@ -249,12 +249,13 @@ def init_db():
                 typeofgoods VARCHAR(255),
                 delivery_date DATE,
                 status BOOLEAN,
-                approval_status BOOLEAN,
+                approval_status BOOLEAN NOT NULL DEFAULT FALSE,
                 itemDetails JSON,
                 remarks TEXT,
                 vendorsid INT NULL,
                 annexureid INT NULL,
                 workordernumber INT NULL,
+                jobwork BOOLEAN NOT NULL DEFAULT FALSE,
                 FOREIGN KEY (employeeid) REFERENCES EmployeeRecords(employeeid) ON DELETE CASCADE,
                 FOREIGN KEY (vendorsid) REFERENCES vendors(vendorsid) ON DELETE CASCADE,
                 FOREIGN KEY (annexureid) REFERENCES annexure(annexureid) ON DELETE CASCADE,
@@ -278,6 +279,35 @@ def init_db():
                 FOREIGN KEY (pooutid) REFERENCES po_outwards(pooutid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS meterial (
+                meterialid INT AUTO_INCREMENT PRIMARY KEY,
+                meterial_name VARCHAR(255) NOT NULL UNIQUE,
+                meterial_description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS goods (
+                goodid INT AUTO_INCREMENT PRIMARY KEY,
+                good_name VARCHAR(255) NOT NULL UNIQUE,
+                good_description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS items (
+                itemid INT AUTO_INCREMENT PRIMARY KEY,
+                item_name VARCHAR(255) NOT NULL UNIQUE,
+                item_description TEXT,
+                hsncode VARCHAR(50),
+                unit VARCHAR(50) NOT NULL Check(unit <> ""),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
             """,
             """
             CREATE TABLE IF NOT EXISTS inventory (
@@ -314,35 +344,6 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (meterialid, goodid, itemid, workordernumber),
                 FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber)
-            );
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS meterial (
-                meterialid INT AUTO_INCREMENT PRIMARY KEY,
-                meterial_name VARCHAR(255) NOT NULL UNIQUE,
-                meterial_description TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            );
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS goods (
-                goodid INT AUTO_INCREMENT PRIMARY KEY,
-                good_name VARCHAR(255) NOT NULL UNIQUE,
-                good_description TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            );
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS items (
-                itemid INT AUTO_INCREMENT PRIMARY KEY,
-                item_name VARCHAR(255) NOT NULL UNIQUE,
-                item_description TEXT,
-                hsncode VARCHAR(50),
-                unit VARCHAR(50) NOT NULL Check(unit <> ""),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             );
             """,
             """
