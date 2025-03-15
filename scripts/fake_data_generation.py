@@ -676,10 +676,11 @@ def insert_inventory_data(cursor, po_outward_ids, purchase_order_ids, num_materi
         material_id, good_id, item_id = inventory_items[i]
         po_outward_id = po_outward_ids[i]
         quantity = random.randint(5, 500)
+        price = round(random.uniform(10, 5000), 2)
         
-        query = "INSERT INTO inlog (meterialid, goodid, itemid, pooutid, quantity) VALUES (%s, %s, %s, %s, %s)"
+        query = "INSERT INTO inlog (meterialid, goodid, itemid, pooutid, quantity, price) VALUES (%s, %s, %s, %s, %s, %s)"
         try:
-            cursor.execute(query, (material_id, good_id, item_id, po_outward_id, quantity))
+            cursor.execute(query, (material_id, good_id, item_id, po_outward_id, quantity, price))
         except mysql.connector.Error as error:
             print(f"Error inserting inlog: {error}")
 
