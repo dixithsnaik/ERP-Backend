@@ -9,9 +9,113 @@ from dataControllers.PurchaseOrdersIn import (
                                                 fetchProductionSlipDB,
                                                 fetchWODB,
                                                 createPODB,
-                                                updatePODB
+                                                updatePODB,
+                                                createProductionSlipDB,
+                                                updateProductionSlipDB,
+                                                fetchCustomerAcceptanceDB,
+                                                updateCustomerAcceptanceDB
                                              )
 from dataControllers.Customers import getCustomerName
+
+def updateCustomerAcceptance():
+    """
+    this function updates the customer acceptance of a production slip in the database.
+    {
+        "workordernumber": 1,
+        "customer_acceptance_status": 1,
+        "reason_for_rejection": "Throughout beyond consumer resource it myself. Picture office military knowledge military seven. Company dream drive better purpose."
+        .. other fields
+    }
+    """
+
+    data = request.get_json()
+    try:
+        # then update the customer acceptance in the database
+        updateCustomerAcceptanceDB(data)
+
+        return jsonify({"message": "Customer acceptance updated successfully"})
+    
+    except Exception as e:
+        logging.error(f"An error occurred while updating customer acceptance: {e}")
+        return jsonify({"error": str(e)})
+
+def fetchCustomerAcceptance():
+    """
+    this function fetches all the customer acceptance, of production slips, from the database.
+    """
+    try:
+        # first fetch all the customer acceptance from the database
+        customerAcceptance = fetchCustomerAcceptanceDB()
+
+        return jsonify({"customerAcceptance": customerAcceptance})
+    
+    except Exception as e:
+        logging.error(f"An error occurred while fetching customer acceptance: {e}")
+        return jsonify({"error": str(e)})
+
+def updateProductionSlip():
+    """
+    this function updates a production slip in the database.
+    {
+        "account": "avinash Bell",
+        "created_at": "Sat, 15 Mar 2025 13:18:28 GMT",
+        "customer": "Patricia Gillespie",
+        "customer_acceptance_status": 0,
+        "logs": "Energy see employee pull person history free. Hospital represent spring win.\nStrategy adult speech north whatever seek. Tonight ask them watch arrive fine remain.",
+        "project_engineer": "Tina Weaver, Dale Hill",
+        "project_name": "Rice PLC",
+        "quality_engineer": "Timothy Patterson, Dana Lee",
+        "reason_for_rejection": "Throughout beyond consumer resource it myself. Picture office military knowledge military seven. Company dream drive better purpose.",
+        "slip_date": "Sun, 23 Feb 2025 00:00:00 GMT",
+        "slip_number": 3,
+        "special_instruction": "Can media sound study within amount else. Traditional cold affect smile and give. Language I view nor young.\nCourt chance Mrs public either. Road artist some whom use already.",
+        "store": "Andrewmouth",
+        "workordernumber": 1
+    }
+    """
+
+    data = request.get_json()
+    try:
+        # then update the production slip in the database
+        updateProductionSlipDB(data)
+
+        return jsonify({"message": "Production slip updated successfully"})
+    
+    except Exception as e:
+        logging.error(f"An error occurred while updating production slip: {e}")
+        return jsonify({"error": str(e)})
+
+def createProductionSlip():
+    """
+    this function creates a new production slip in the database.
+    {
+        "account": "Katelyn Bell",
+        "created_at": "Sat, 15 Mar 2025 13:18:28 GMT",
+        "customer": "Patricia Gillespie",
+        "customer_acceptance_status": 0,
+        "logs": "Energy see employee pull person history free. Hospital represent spring win.\nStrategy adult speech north whatever seek. Tonight ask them watch arrive fine remain.",
+        "project_engineer": "Tina Weaver, Dale Hill",
+        "project_name": "Rice PLC",
+        "quality_engineer": "Timothy Patterson, Dana Lee",
+        "reason_for_rejection": "Throughout beyond consumer resource it myself. Picture office military knowledge military seven. Company dream drive better purpose.",
+        "slip_date": "Sun, 23 Feb 2025 00:00:00 GMT",
+        "slip_number": 3,
+        "special_instruction": "Can media sound study within amount else. Traditional cold affect smile and give. Language I view nor young.\nCourt chance Mrs public either. Road artist some whom use already.",
+        "store": "Andrewmouth",
+        "workordernumber": 1
+    }
+    """
+
+    data = request.get_json()
+    try:
+        # then create the production slip in the database
+        createProductionSlipDB(data)
+
+        return jsonify({"message": "Production slip created successfully"})
+    
+    except Exception as e:
+        logging.error(f"An error occurred while creating production slip: {e}")
+        return jsonify({"error": str(e)})
 
 def updatePO():
     """
@@ -49,11 +153,6 @@ def updatePO():
     """
     data = request.get_json()
     try:
-        # first get the customer name
-        customerName = getCustomerName(data["customerid"])
-
-        data["customerName"] = customerName
-
         # then update the PO in the database
         updatePODB(data)
 
@@ -100,11 +199,6 @@ def createPO():
     """
     data = request.get_json()
     try:
-        # first get the customer name
-        customerName = getCustomerName(data["customerid"])
-
-        data["customerName"] = customerName
-
         # then create the PO in the database
         createPODB(data)
 

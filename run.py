@@ -22,6 +22,13 @@ app.add_url_rule('/poInwards/prodcutionSlip/fetch', 'fetchProductionSlip', Purch
 app.add_url_rule('/poInwards/fetchWO', 'fetchWO', PurchaseOrdersIn.fetchWO, methods=['GET'])
 app.add_url_rule('/poInwards/create', 'createPO', PurchaseOrdersIn.createPO, methods=['POST'])
 app.add_url_rule('/poInwards/updatePO', 'updatePO', PurchaseOrdersIn.updatePO, methods=['POST'])
+app.add_url_rule('/poInwards/prodcutionSlip/create', 'createProductionSlip', PurchaseOrdersIn.createProductionSlip, methods=['POST'])
+app.add_url_rule('/poInwards/prodcutionSlip/update', 'updateProductionSlip', PurchaseOrdersIn.updateProductionSlip, methods=['POST'])
+
+# Customer Acceptance routes
+app.add_url_rule('/poInwards/customerAcceptance/fetchALL', 'fetchCustomerAcceptance', PurchaseOrdersIn.fetchCustomerAcceptance, methods=['GET'])
+app.add_url_rule('/poInwards/customerAcceptance/update', 'updateCustomerAcceptance', PurchaseOrdersIn.updateCustomerAcceptance, methods=['POST'])
+
 
 # Quotations routes
 app.add_url_rule('/quotations/unapproved', 'unapproved_quotations', Quotations.getUnapprovedQuotations, methods=['GET'])

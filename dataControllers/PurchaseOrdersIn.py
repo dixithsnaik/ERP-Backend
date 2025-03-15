@@ -1,6 +1,107 @@
 # internal imports
 from dataControllers.cursor import cursor
 
+def updateCustomerAcceptanceDB(data):
+    try:
+        query="""UPDATE production_slip SET """
+
+        for key in data.keys():
+            query+=key+"=%s,"
+
+        query=query[:-1]+" WHERE workordernumber=%s"
+
+        data_to_put=list(data.values())
+
+        for i in range(len(data_to_put)):
+            if type(data_to_put[i])==dict:
+                data_to_put[i]=json.dumps(data_to_put[i])
+
+        print(data_to_put)
+
+        print(query)
+
+        cursor.execute(query,data_to_put)
+
+        return "Customer acceptance updated successfully"
+    except Exception as e:
+        return {"error": str(e)}
+
+def fetchCustomerAcceptanceDB():
+    try:
+        cursor.execute("""SELECT slip_number,
+                                 customer,
+                                 customer_acceptance_status,
+                                 reason_for_rejection,
+                                 slip_date,
+                                 special_instruction,
+                                 workordernumber
+                                 FROM production_slip
+                         """)
+        customerAcceptance = cursor.fetchall()
+
+        return customerAcceptance
+    except Exception as e:
+        return {"error": str(e)}
+
+def updateProductionSlipDB(data):
+    try:
+        query="""UPDATE production_slip SET """
+
+        for key in data.keys():
+            query+=key+"=%s,"
+
+        query=query[:-1]+" WHERE workordernumber=%s"
+
+        data_to_put=list(data.values())
+
+        for i in range(len(data_to_put)):
+            if type(data_to_put[i])==dict:
+                data_to_put[i]=json.dumps(data_to_put[i])
+
+        print(data_to_put)
+
+        print(query)
+
+        cursor.execute(query,data_to_put)
+
+        return "Production slip updated successfully"
+
+        return {"message": "PO created successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def createProductionSlipDB(data):
+    try:
+        query="""INSERT into production_slip ("""
+
+        for key in data.keys():
+            query+=key+","
+
+        query=query[:-1]+") VALUES ("
+
+        for key in data.keys():
+            query+="%s,"
+        
+        query=query[:-1]+")"
+
+        data_to_put=list(data.values())
+
+        for i in range(len(data_to_put)):
+            if type(data_to_put[i])==dict:
+                data_to_put[i]=json.dumps(data_to_put[i])
+
+        print(data_to_put)
+
+        print(query)
+
+        cursor.execute(query,data_to_put)
+
+        return "Production slip created successfully"
+
+        return {"message": "PO created successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
 def updatePODB(data):
     try:
         query="""UPDATE purchase_order SET """
