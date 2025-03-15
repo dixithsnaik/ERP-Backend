@@ -18,7 +18,7 @@ def getEmployees():
     except Exception as e:
         logging.error(f"An error occurred while fetching Employees: {e}")
         return {"error": str(e)}
-    
+
 def recruitEmployee(data):
 	"""This function creates Employees in the database, from a given list of Employee objects. Handles all data types.
 
@@ -56,6 +56,9 @@ def recruitEmployee(data):
 						values.append(value)  # Keep as regular string
 				except ValueError:
 					values.append(value)  # If not a valid timestamp, keep as string
+			else:
+				values.append(value)  # Keep as is if not any of the above types
+				
 		# Insert the Employee records into the database
 		cursor.execute(f"INSERT INTO EmployeeRecords ({columns}) VALUES ({placeholders})", tuple(values))
 		connection.commit()
