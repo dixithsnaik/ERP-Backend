@@ -4,7 +4,7 @@ import logging
 # internal imports
 from dataModels.datbaseSetup import init_db
 import logging
-from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer, company, annexure
+from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer, company, annexure, Employees
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -59,6 +59,12 @@ app.add_url_rule('/customers/update', 'updateCustomer', Customer.updateCustomer,
 # Company routes
 app.add_url_rule('/company/details','companyDetails',company.getCompanyDetails, methods=["GET"])
 app.add_url_rule('/company/update','updateCompanyDetails',company.updateCompanyDetails, methods=["POST"])
+
+# Employees routes
+app.add_url_rule('/employees/all', 'getEmployees', Employees.getEmployees, methods=['GET'])
+app.add_url_rule('/employees/recruit', 'recruitEmployee', Employees.recruitEmployee, methods=['POST'])
+app.add_url_rule('/employees/layoff', 'layoffEmployee', Employees.layoffEmployee, methods=['POST'])
+app.add_url_rule('/employees/update-role', 'updateRoleEmployee', Employees.updateRoleEmployee, methods=['POST'])
 
 # annexure routes
 app.add_url_rule('/annexure/create', 'createAnnexure', annexure.createAnnexure, methods=['POST'])

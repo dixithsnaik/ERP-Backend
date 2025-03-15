@@ -35,6 +35,43 @@ def connect_to_db():
         print(f"Error connecting to MySQL: {error}")
         return None
 
+# Generate fake data for EmployeeRecords table
+def insert_employee_records(cursor, num_records=30):
+    employee_ids = []
+    work_types = ['enum', 'admin', 'user']
+    
+    for i in range(num_records):
+        name = fake.name()
+        email = fake.email()
+        phone = fake.phone_number()[:20]
+        permanent_work = random.choice(work_types) if random.random() > 0.3 else None
+        temp_work = random.choice(work_types) if random.random() > 0.6 else None
+        till_time = fake.date_between(start_date='+30d', end_date='+365d') if temp_work else None
+        reason = fake.text(max_nb_chars=100) if random.random() > 0.7 else None
+        contribution = fake.text(max_nb_chars=200) if random.random() > 0.5 else None
+        address1 = fake.street_address()
+        address2 = fake.secondary_address() if random.random() > 0.4 else None
+        work_type = random.choice(work_types)
+        city = fake.city()
+        state = fake.state()
+        pin_code = fake.postcode()[:20]
+        join_date = fake.date_between(start_date='-1000d', end_date='-1d')
+        leave_date = "NULL"
+        
+        query = """
+        INSERT INTO EmployeeRecords (Name, EmailAddress, PhoneNumber, PermanentWorkType, TemporaryWorkType, TillTime, 
+                                    ReasonForLayoff, ContributionToCompany, AddressLine1, AddressLine2, WorkType, 
+                                    City, State, PinCode, DateOfJoining, DateOfLeaving)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s)
+        """
+        try:
+            cursor.execute(query, (name, email, phone, permanent_work, temp_work, till_time, reason, contribution, 
+                             address1, address2, work_type, city, state, pin_code, join_date, leave_date))
+            employee_ids.append(cursor.lastrowid)
+        except mysql.connector.Error as error:
+            print(f"Error inserting employee: {error}")
+    print("Employee records :",employee_ids)
+    return employee_ids
 
 # Generate fake data for company_details table
 def insert_company_details(cursor, num_records=10):

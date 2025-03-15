@@ -129,7 +129,7 @@ def init_db():
 
             """,
             """
-           CREATE TABLE IF NOT EXISTS EmployeeRecords (
+            CREATE TABLE IF NOT EXISTS EmployeeRecords (
                 EmployeeID INT AUTO_INCREMENT PRIMARY KEY,
                 Name VARCHAR(255) NOT NULL,
                 EmailAddress VARCHAR(255) UNIQUE,
@@ -145,8 +145,11 @@ def init_db():
                 City VARCHAR(100),
                 State VARCHAR(100),
                 PinCode VARCHAR(20),
-                DateOfJoining DATE
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                DateOfJoining DATE, 
+                DateOfLeaving DATE DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
             """,
             """
