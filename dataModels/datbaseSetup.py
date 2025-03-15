@@ -332,6 +332,7 @@ def init_db():
                 itemid INT,
                 pooutid INT,
                 quantity INT CHECK (quantity >= 0),
+                price DECIMAL(15,2),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (meterialid, goodid, itemid, pooutid),
                 FOREIGN KEY (pooutid) REFERENCES po_outwards(pooutid)

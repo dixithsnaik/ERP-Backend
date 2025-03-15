@@ -4,7 +4,7 @@ import logging
 # internal imports
 from dataModels.datbaseSetup import init_db
 import logging
-from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer, company, annexure, Employees
+from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer, company, annexure, Employees, Inventory
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -39,6 +39,19 @@ app.add_url_rule('/quotations/rejected', 'rejected_quotation', Quotations.reject
 app.add_url_rule('/quotations/approvalstatus', 'approval_status', Quotations.approvalStatus, methods=['POST'])
 app.add_url_rule('/quotations/create', 'create_quotation', Quotations.createQuotation, methods=['POST'])
 app.add_url_rule('/quotations/update', 'update_quotation', Quotations.updateQuotation, methods=['POST'])
+
+#Inventory Routes
+app.add_url_rule('/inventory/viewInventory', 'getInventory', Inventory.getInventory, methods=['GET'])
+app.add_url_rule('/inventory/newItem', 'newItem', Inventory.newItem, methods=['POST'])
+app.add_url_rule('/inventory/newMaterial', 'newMaterial', Inventory.newMaterial, methods=['POST'])
+app.add_url_rule('/inventory/newGoods', 'newGoods', Inventory.newGoods, methods=['POST'])
+app.add_url_rule('/inventory/Goods', 'getGoods', Inventory.getGoods, methods=['GET'])
+app.add_url_rule('/inventory/Materials', 'getMaterials', Inventory.getMaterials, methods=['GET'])
+app.add_url_rule('/inventory/Items', 'getItems', Inventory.getItems, methods=['GET'])
+app.add_url_rule('/inventory/inLog', 'inLog', Inventory.inLog, methods=['GET'])
+app.add_url_rule('/inventory/outLog', 'outLog', Inventory.outLog, methods=['GET'])
+app.add_url_rule('/inventory/addInLog', 'addInLog', Inventory.addInLog, methods=['POST'])
+app.add_url_rule('/inventory/addOutLog', 'addOutLog', Inventory.addOutLog, methods=['POST'])
 
 
 # RFQ routes
