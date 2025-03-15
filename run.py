@@ -48,11 +48,6 @@ app.add_url_rule('/customers/update', 'updateCustomer', Customer.updateCustomer,
 app.add_url_rule('/company/details','companyDetails',company.getCompanyDetails, methods=["GET"])
 app.add_url_rule('/company/update','updateCompanyDetails',company.updateCompanyDetails, methods=["POST"])
 
-# purchase order (outwards) routes
-# app.add_url_rule('/po/outwards/pending', '', PurchaseOrdersOut.getPending, methods=['GET'])
-# app.add_url_rule('/po/outwards/unapproved', '', PurchaseOrdersOut.getUnapproved, methods=['GET'])
-# app.add_url_rule('/po/outwards/rejected', '', PurchaseOrdersOut.getRejected, methods=['GET'])
-
 # Employees routes
 app.add_url_rule('/employees/all', 'getEmployees', Employees.getEmployees, methods=['GET'])
 app.add_url_rule('/employees/recruit', 'recruitEmployee', Employees.recruitEmployee, methods=['POST'])

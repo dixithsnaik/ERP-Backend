@@ -152,7 +152,7 @@ def init_db():
             """
             CREATE TABLE IF NOT EXISTS purchase_order (
                 workordernumber INT AUTO_INCREMENT PRIMARY KEY,
-                customerid INT,
+                customerid INT NOT NULL,
                 quotationid INT,
                 employeeid INT,
                 po_number VARCHAR(50) UNIQUE NOT NULL,
@@ -161,7 +161,7 @@ def init_db():
                 amount DECIMAL(15,2) NOT NULL,
                 project_engineers JSON,
                 quality_engineers JSON,
-                delivery_date DATE,
+                delivery_date DATE NOT NULL,
                 status VARCHAR(50) DEFAULT 'Pending',
                 remarks TEXT,
                 contact_person_name VARCHAR(255),
@@ -199,6 +199,8 @@ def init_db():
                 quality_engineer VARCHAR(255),
                 store VARCHAR(255),
                 account VARCHAR(255),
+                customer_acceptance_status BOOLEAN DEFAULT NULL,
+                reason_for_rejection TEXT,
                 special_instruction TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 logs TEXT,
@@ -239,7 +241,7 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (employeeid) REFERENCES EmployeeRecords(employeeid) ON DELETE SET NULL,
-                FOREIGN KEY (vendorsid) REFERENCES vendors(vendorsid) ON DELETE CASCADE
+                FOREIGN KEY (vendorsid) REFERENCES vendors(vendorsid) ON DELETE CASCADE,
                 FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE,
                 FOREIGN KEY (statusManagerId) REFERENCES EmployeeRecords(employeeid) ON DELETE SET NULL,
                 FOREIGN KEY (statusAdminId) REFERENCES EmployeeRecords(employeeid) ON DELETE SET NULL
