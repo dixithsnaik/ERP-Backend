@@ -404,36 +404,40 @@ def insert_bmos(cursor, purchase_order_ids, num_records=15):
     
     return bmo_ids
 
-# Generate fake data for annexure table
-def insert_annexures(cursor, vendor_ids, num_records=30):
+def insert_annexures(cursor, vendor_ids, employee_ids, workorder_ids, num_records=30):
     annexure_ids = []
-    annexure_types = ['Type A', 'Type B', 'Type C']
-    processes = ['Process 1', 'Process 2', 'Process 3']
-    
-    for i in range(num_records):
-        annexure_number = f"ANN-{fake.uuid4()[:8].upper()}"
+    annexure_types = ['Job Work', 'Purchase']
+
+    for _ in range(num_records):
         annexure_type = random.choice(annexure_types)
-        process = random.choice(processes)
-        type_of_goods = fake.bs()
+        employee_id = random.choice(employee_ids) if employee_ids else None
+        workorder_number = random.choice(workorder_ids) if workorder_ids else None
         vendor_id = random.choice(vendor_ids)
-        status = random.choice(['Approve', 'Reject', 'Pending'])
-        
-        # Generate aosn_details and logs as JSON strings
-        aosn_details_json = json.dumps([{"detail": fake.text(), "timestamp": fake.date_time().isoformat()}])
-        logs = json.dumps([{"action": fake.text(), "timestamp": fake.date_time().isoformat()}])
-        
+
+        status_manager_id = random.choice(employee_ids) if employee_ids and random.choice([True, False]) else None
+        status_manager = random.choice([True, False]) if status_manager_id else None
+
+        status_admin_id = random.choice(employee_ids) if employee_ids and random.choice([True, False]) else None
+        status_admin = random.choice([True, False]) if status_admin_id else None
+
+        # Generate item_details as a JSON string
+        item_details_json = json.dumps([
+            {"item": fake.word(), "quantity": random.randint(1, 10), "price": round(random.uniform(10, 1000), 2)}
+        ])
+
         query = """
-        INSERT INTO annexure (annexure_number, annexure_type, process, type_of_goods, vendorsid, status, aosn_details, logs)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO annexure (annexure_type, employeeid, workordernumber, vendorsid, 
+                              statusManagerId, statusManager, statusAdminId, statusAdmin, item_details)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        
+
         try:
-            cursor.execute(query, (annexure_number, annexure_type, process, type_of_goods,
-                                   vendor_id, status, aosn_details_json, logs))
+            cursor.execute(query, (annexure_type, employee_id, workorder_number, vendor_id,
+                                   status_manager_id, status_manager, status_admin_id, status_admin, item_details_json))
             annexure_ids.append(cursor.lastrowid)
         except mysql.connector.Error as error:
             print(f"Error inserting annexure: {error}")
-    
+
     return annexure_ids
 
 # Generate fake data for production_slip table
@@ -445,6 +449,8 @@ def insert_production_slips(cursor, purchase_order_ids, num_records=30):
         project_name = fake.company()
         customer = fake.name()
         slip_date = fake.date_between(start_date='-30d', end_date='+30d')
+        customer_acceptance_status = random.choice([0,1,None])
+        reason_for_rejection = fake.text() if customer_acceptance_status == 0 else None
 
         # Convert lists to strings using join
         project_engineer = ', '.join([fake.name() for _ in range(2)])
@@ -457,13 +463,13 @@ def insert_production_slips(cursor, purchase_order_ids, num_records=30):
 
         query = """
         INSERT INTO production_slip (workordernumber, project_name, customer, slip_date, project_engineer,
-                                    quality_engineer, store, account, special_instruction, logs)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                    quality_engineer, store, account, special_instruction, logs, customer_acceptance_status, reason_for_rejection)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         try:
             cursor.execute(query, (po_id, project_name, customer, slip_date, project_engineer,
-                                  quality_engineer, store, account, special_instruction, logs))
+                                  quality_engineer, store, account, special_instruction, logs, customer_acceptance_status, reason_for_rejection))
             production_slip_ids.append(cursor.lastrowid)
         except mysql.connector.Error as error:
             print(f"Error inserting production slip: {error}")
@@ -775,11 +781,11 @@ def main():
         print("Inserting production slips...")
         production_slip_ids = insert_production_slips(cursor, purchase_order_ids)
         
+        print("Inserting annexures...")
+        annexure_ids = insert_annexures(cursor, vendor_ids, employee_ids, purchase_order_ids)
+
         print("Inserting PO outwards...")
         po_outward_ids = insert_po_outwards(cursor, employee_ids, vendor_ids, annexure_ids, purchase_order_ids)
-
-        print("Inserting annexures...")
-        annexure_ids = insert_annexures(cursor, vendor_ids)
         
         print("Inserting DCs...")
         dc_ids = insert_dcs(cursor, vendor_ids, po_outward_ids)
