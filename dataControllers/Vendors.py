@@ -12,7 +12,7 @@ def getVendors():
         dict: List of vendor records OR { "error": "Detailed error message" }
     """
     try:
-        cursor.execute("SELECT vendorName, emailAddress, phoneNumber, addressLine1, addressLine2, gstNumber, city, state, pinCode FROM vendors")
+        cursor.execute("SELECT vendorsid, vendorName, emailAddress, phoneNumber, addressLine1, addressLine2, gstNumber, city, state, pinCode FROM vendors")
         users = cursor.fetchall()
         return users
     except Exception as e:
