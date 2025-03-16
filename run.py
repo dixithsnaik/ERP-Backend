@@ -4,7 +4,7 @@ import logging
 # internal imports
 from dataModels.datbaseSetup import init_db
 import logging
-from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer, company, annexure, Employees, Inventory, bom
+from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer, company, annexure, Employees, Inventory, DC, PurchaseOrdersOut, bom
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -29,6 +29,15 @@ app.add_url_rule('/poInwards/prodcutionSlip/update', 'updateProductionSlip', Pur
 app.add_url_rule('/poInwards/customerAcceptance/fetchALL', 'fetchCustomerAcceptance', PurchaseOrdersIn.fetchCustomerAcceptance, methods=['GET'])
 app.add_url_rule('/poInwards/customerAcceptance/update', 'updateCustomerAcceptance', PurchaseOrdersIn.updateCustomerAcceptance, methods=['POST'])
 
+# PO Outwards routes
+app.add_url_rule('/purchase-orders/outwards/all', 'getAll', PurchaseOrdersOut.getAll, methods=['GET'])
+app.add_url_rule('/purchase-orders/outwards/pending', 'getPending', PurchaseOrdersOut.getPending, methods=['GET'])
+app.add_url_rule('/purchase-orders/outwards/approved', 'getApproved', PurchaseOrdersOut.getApproved, methods=['GET'])
+app.add_url_rule('/purchase-orders/outwards/rejected', 'getRejected', PurchaseOrdersOut.getRejected, methods=['GET'])
+app.add_url_rule('/purchase-orders/outwards/fetch', 'fetch', PurchaseOrdersOut.fetch, methods=['GET'])
+app.add_url_rule('/purchase-orders/outwards/create', 'createPOO', PurchaseOrdersOut.createPOO, methods=['POST'])
+app.add_url_rule('/purchase-orders/outwards/update', 'updatePOO', PurchaseOrdersOut.updatePOO, methods=['POST'])
+app.add_url_rule('/purchase-orders/outwards/updateStatus', 'updateStatusPOO', PurchaseOrdersOut.updateStatusPOO, methods=['POST'])
 
 # Quotations routes
 app.add_url_rule('/quotations/unapproved', 'unapproved_quotations', Quotations.getUnapprovedQuotations, methods=['GET'])
@@ -95,6 +104,16 @@ app.add_url_rule('/bom/editFile', 'editFile', bom.editFile, methods=['POST'])
 app.add_url_rule('/bom/createFolder', 'createFolder', bom.createFolder, methods=['POST'])
 app.add_url_rule('/bom/downloadFile', 'downloadFile', bom.downloadFile, methods=['POST'])
 app.add_url_rule('/bom/deleteFileOrFolder', 'deleteFile', bom.deleteFileOrFolder, methods=['POST'])
+
+# DC routes
+app.add_url_rule('/dc/create', 'createDC', DC.createDC, methods=['POST'])
+app.add_url_rule('/dc/update', 'updateDC', DC.updateDC, methods=['POST'])
+app.add_url_rule('/dc/updateStatus', 'updateStatusDC', DC.updateStatusDC, methods=['POST'])
+app.add_url_rule('/dc/all', 'getAllDC', DC.getAllDC, methods=['GET'])
+app.add_url_rule('/dc/approved', 'approvedDC', DC.approvedDC, methods=['GET'])
+app.add_url_rule('/dc/open', 'openDC', DC.openDC, methods=['GET'])
+
+
 
 if __name__ == '__main__':
     try:
