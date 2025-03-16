@@ -84,7 +84,6 @@ def layoffEmployee():
 		logging.error(f"An error occurred while laying off employees: {e}")
 		return {"error": str(e)}
 
-
 def updateRoleEmployee():
 	"""
 	Updates employee role in the database.
@@ -113,4 +112,3 @@ def updateRoleEmployee():
 	except Exception as e:
 		logging.error(f"An error occurred while updating employee role: {e}")
 		return
-
