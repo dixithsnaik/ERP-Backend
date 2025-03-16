@@ -29,3 +29,15 @@ poetry run python run.py
 ```bash
 poetry run python scripts/fake_data_generation.py
 ```
+
+5. GCP setup
+- Create a bucket and service account
+- make sure the bucket is fine grained control
+- add the service account to the bucket permission
+- Download the key.json file from the service account
+- In the local download google cloud CLI and login to gcloud
+    -https://cloud.google.com/sdk/docs/install
+    - gcloud auth login --cred-file=erp_key.json
+    - gcloud config set project "id_of_the_projet"
+- In ~/.bashrc export GOOGLE_APPLICATION_CREDENTIALS="path to key.json"
+- run the command source ~/.bashrc
