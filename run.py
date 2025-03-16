@@ -4,7 +4,7 @@ import logging
 # internal imports
 from dataModels.datbaseSetup import init_db
 import logging
-from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer, company, annexure, Employees, Inventory, DC, PurchaseOrdersOut
+from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors, Customer, company, annexure, Employees, Inventory, DC, PurchaseOrdersOut, bom
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -97,6 +97,14 @@ app.add_url_rule('/annexure/fetchAdminAnnexures', 'fetchAdminAnnexures', annexur
 app.add_url_rule('/annexure/adminApprovalStatus', 'adminApprovalStatus', annexure.adminApprovalStatus, methods=['POST'])
 app.add_url_rule('/annexure/fetchApprovedAnneuxres', 'fetchApprovedAnneuxres', annexure.fetchApprovedAnneuxres, methods=['GET'])
 
+# BOM routes
+app.add_url_rule('/bom/uploadFile', 'uploadFile', bom.uploadFile, methods=['POST'])
+app.add_url_rule('/bom/fetchFilesOrFolders', 'listFiles', bom.getFilesOrFoldersFromPath, methods=['POST'])
+app.add_url_rule('/bom/editFile', 'editFile', bom.editFile, methods=['POST'])
+app.add_url_rule('/bom/createFolder', 'createFolder', bom.createFolder, methods=['POST'])
+app.add_url_rule('/bom/downloadFile', 'downloadFile', bom.downloadFile, methods=['POST'])
+app.add_url_rule('/bom/deleteFileOrFolder', 'deleteFile', bom.deleteFileOrFolder, methods=['POST'])
+
 # DC routes
 app.add_url_rule('/dc/create', 'createDC', DC.createDC, methods=['POST'])
 app.add_url_rule('/dc/update', 'updateDC', DC.updateDC, methods=['POST'])
@@ -104,6 +112,7 @@ app.add_url_rule('/dc/updateStatus', 'updateStatusDC', DC.updateStatusDC, method
 app.add_url_rule('/dc/all', 'getAllDC', DC.getAllDC, methods=['GET'])
 app.add_url_rule('/dc/approved', 'approvedDC', DC.approvedDC, methods=['GET'])
 app.add_url_rule('/dc/open', 'openDC', DC.openDC, methods=['GET'])
+
 
 
 if __name__ == '__main__':

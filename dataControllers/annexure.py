@@ -57,7 +57,10 @@ def createAnnexureDB(data):
             data_to_put[i]=json.dumps(data_to_put[i])
     
     cursor.execute(query, data_to_put)
-    return {"message": "Annexure created successfully."}
+    # return all the annexures in response
+    return {
+        "message": "Annexure created successfully."
+    }
 
 
 def fetchAllAnnexuresDB(employeeId, workOrderNumber):

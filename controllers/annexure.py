@@ -3,6 +3,7 @@ import logging
 
 # internal imports
 from dataControllers.annexure import createAnnexureDB, fetchAllAnnexuresDB, fetchManagerAnnexuresDB, managerApprovalStatusDB, fetchAdminAnnexuresDB, adminApprovalStatusDB, fetchApprovedAnneuxresDB
+from Utils import employeeName, vendorName
 
 def createAnnexure():
     """
@@ -14,7 +15,17 @@ def createAnnexure():
             return jsonify({"error": "Invalid input"}), 400
 
         response = createAnnexureDB(data)
-        return jsonify(response), 201
+
+        fetchUpdatedAnnexure = fetchAllAnnexuresDB(data['employeeId'], data['workOrderNumber'])
+        # adding employee and vendor naem to the response using the employeeId and vendorId
+        getEmployeeNameAndVendorName(fetchUpdatedAnnexure)
+        
+        return jsonify(
+            {
+                "message": response["message"],
+                "annexures": fetchUpdatedAnnexure
+            }
+        ), 201
 
     except Exception as e:
         logging.error(f"Error creating annexure: {e}", exc_info=True)
@@ -28,6 +39,11 @@ def fetchAllAnneuxres(employeeId, workOrderNumber):
     """
     try:
         allAnnexures = fetchAllAnnexuresDB(employeeId, workOrderNumber)
+        # adding the employee and vendor name to the response using the employeeId and vendorId
+
+        getEmployeeNameAndVendorName(allAnnexures)
+
+
         return jsonify(allAnnexures), 200
 
     except Exception as e:
@@ -42,6 +58,8 @@ def fetchManagerAnnexures(workOrderNumber):
 
     try:
         allAnnexures = fetchManagerAnnexuresDB(workOrderNumber)
+        # adding the employee and vendor name to the response using the employeeId and vendorId
+        getEmployeeNameAndVendorName(allAnnexures)
         return jsonify(allAnnexures), 200
     except Exception as e:
         logging.error(f"Error fetching annexures: {e}", exc_info=True)
@@ -71,6 +89,9 @@ def fetchAdminAnnexures():
     """
     try:
         allAnnexures = fetchAdminAnnexuresDB()
+        # adding the employee and vendor name to the response using the employeeId and vendorId
+        getEmployeeNameAndVendorName(allAnnexures)
+
         return jsonify(allAnnexures), 200
 
     except Exception as e:
@@ -100,8 +121,18 @@ def fetchApprovedAnneuxres():
     """
     try:
         allAnnexures = fetchApprovedAnneuxresDB()
+        # adding the employee and vendor name to the response using the employeeId and vendorId
+        getEmployeeNameAndVendorName(allAnnexures)
         return jsonify(allAnnexures), 200
 
     except Exception as e:
         logging.error(f"Error fetching annexures: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
+
+
+def getEmployeeNameAndVendorName(allAnnexures):
+    for annexure in allAnnexures:
+            if "employeeid" in annexure:
+                annexure["employeeName"] = employeeName.getEmployeeName(annexure["employeeid"])
+            if "vendorsid" in annexure:
+                annexure["vendorName"] = vendorName.getVendorName(annexure["vendorsid"])
