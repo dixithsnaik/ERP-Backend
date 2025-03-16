@@ -10,6 +10,14 @@ poetry install
 
 note :- before running this 
 make sure you have installed mysql in your system and also
+link:- https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04#step-3-creating-a-dedicated-mysql-user-and-granting-privileges
+
+in the above artical creating user is wrong use this insted
+```bash
+CREATE USER 'dixith'@'%' IDENTIFIED WITH mysql_native_password BY 'your_password_here';
+GRANT ALL PRIVILEGES ON *.* TO 'dixith'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+```
 then
 ```bash
 sudo mysql -u root -p
