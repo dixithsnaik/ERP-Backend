@@ -53,6 +53,7 @@ def fetch():
 	"""
 	try:
 		po_out_id = request.args.get('pooutid')
+		print(po_out_id)
 		return PurchaseOrdersOut.fetch(po_out_id)
 	except Exception as e:
 		logging.error(f"An error occurred while fetching Purchase Order Outwards: {e}")
@@ -110,7 +111,7 @@ def updatePOO():
 		logging.error(f"An error occurred while updating Purchase Order Outwards: {e}")
 		return {"error": str(e)}
 	
-def updateStatusPOO(data):
+def updateStatusPOO():
 	"""
 	Updates the status of a Purchase Order Outwards record in the database.
 	Args:
@@ -121,6 +122,7 @@ def updateStatusPOO(data):
 			- "error": Error message in case of failure
 	"""
 	try:
+		data=request.json
 		if not data:
 			return {"error": "No data provided"}
 		if not isinstance(data, dict):

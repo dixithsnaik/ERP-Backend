@@ -34,10 +34,10 @@ app.add_url_rule('/purchase-orders/outwards/all', 'getAll', PurchaseOrdersOut.ge
 app.add_url_rule('/purchase-orders/outwards/pending', 'getPending', PurchaseOrdersOut.getPending, methods=['GET'])
 app.add_url_rule('/purchase-orders/outwards/approved', 'getApproved', PurchaseOrdersOut.getApproved, methods=['GET'])
 app.add_url_rule('/purchase-orders/outwards/rejected', 'getRejected', PurchaseOrdersOut.getRejected, methods=['GET'])
-app.add_url_rule('/purchase-orders/outwards/fetch?pooutid=1', 'fetch', PurchaseOrdersOut.fetch, methods=['GET'])
+app.add_url_rule('/purchase-orders/outwards/fetch', 'fetch', PurchaseOrdersOut.fetch, methods=['GET'])
 app.add_url_rule('/purchase-orders/outwards/create', 'createPOO', PurchaseOrdersOut.createPOO, methods=['POST'])
 app.add_url_rule('/purchase-orders/outwards/update', 'updatePOO', PurchaseOrdersOut.updatePOO, methods=['POST'])
-app.add_url_rule('/purchase-orders/outwards/updateStatus', 'updateStatus', PurchaseOrdersOut.updateStatus, methods=['POST'])
+app.add_url_rule('/purchase-orders/outwards/updateStatus', 'updateStatusPOO', PurchaseOrdersOut.updateStatusPOO, methods=['POST'])
 
 # Quotations routes
 app.add_url_rule('/quotations/unapproved', 'unapproved_quotations', Quotations.getUnapprovedQuotations, methods=['GET'])

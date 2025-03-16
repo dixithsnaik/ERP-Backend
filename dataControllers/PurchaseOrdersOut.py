@@ -75,9 +75,10 @@ def fetch(po_out_id):
 	Returns:
 		dict: List of Purchase Orders Outwards records OR { "error": "Detailed error message" }    
 	"""
-	try:	
+	try:
+		print(po_out_id)
 		cursor.execute("SELECT * FROM po_outwards WHERE pooutid = %s", (po_out_id,))
-		users = cursor.fetchall()
+		users = cursor.fetchone()
 		return users
 	except Exception as e:
 		logging.error(f"An error occurred while fetching Purchase Orders Outwards: {e}")
@@ -145,32 +146,12 @@ def updatePOO(data):
 		if not isinstance(data, dict):
 			return {"error": "Expected an object with PO Outwards data"}
 		
-		# Convert boolean values to integers
-		data["status"] = int(data.get("status", 0))
-		data["approval_status"] = int(data.get("approval_status", 0))
-		data["jobwork"] = int(data.get("jobwork", 0))
-		
-		# Convert ISO format date to MySQL format (if needed)
-		for date_key in ["poout_date", "delivery_date"]:
-			if date_key in data and isinstance(data[date_key], str):
-				try:
-					data[date_key] = datetime.strptime(data[date_key], "%Y-%m-%d").date()
-				except ValueError:
-					return {"error": f"Invalid date format for {date_key}. Use YYYY-MM-DD."}
-		
-		# Convert JSON field to string
-		data["itemDetails"] = json.dumps(data.get("itemDetails", []))
-		
-		# Construct SQL query dynamically
-		columns = ", ".join(data.keys())
-		placeholders = ", ".join(["%s"] * len(data))
-		values = tuple(data.values())
-		
-		query = f"UPDATE po_outwards SET {columns} WHERE pooutid = {data['pooutid']}"
-		
-		cursor.execute(query, values)
+		columns = ', '.join([f"{key} = %s" for key in data.keys()])
+		values = list(data.values())
+		values.append(data["pooutid"])
+		query = f"UPDATE po_outwards SET {columns} WHERE pooutid = %s"
+		cursor.execute(query, tuple(values))
 		connection.commit()
-		
 		return {"success": True, "message": "Purchase Order Outwards updated successfully"}
 	except Exception as e:
 		logging.error(f"An error occurred while updating Purchase Order Outwards: {e}")
@@ -191,9 +172,9 @@ def updateStatusPOO(data):
 			return {"error": "Expected an object with PO Outwards data"}
 		
 		# Construct SQL query dynamically
-		query = f"UPDATE po_outwards SET status = '{data['status']}' WHERE pooutid = {data['pooutid']}"
-		
-		cursor.execute(query)
+		query = "UPDATE po_outwards SET status = %s WHERE pooutid = %s"
+		values = (data['status'], data['pooutid'])
+		cursor.execute(query, values)
 		connection.commit()
 		
 		return {"success": True, "message": "Purchase Order Outwards status updated successfully"}
