@@ -1,5 +1,6 @@
 from flask import Flask
 import logging
+from flask_cors import CORS
 
 # internal imports
 from dataModels.datbaseSetup import init_db
@@ -10,6 +11,7 @@ from controllers import greet, users, PurchaseOrdersIn, Quotations, Rfq, Vendors
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 #greeting routes
 app.add_url_rule('/hello', 'hello', greet.hello)
