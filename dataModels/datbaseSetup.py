@@ -6,16 +6,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Database Credentials (Use environment variables)
-DB_NAME = os.getenv("DB_NAME", "ERPDB")
-USER = os.getenv("DB_USER", "root")
-PASSWORD = os.getenv("DB_PASSWORD", "root")
-HOST = os.getenv("DB_HOST", "localhost")
+DB_NAME = os.getenv("DB_NAME")
+USER = os.getenv("DB_USER")
+PASSWORD = os.getenv("DB_PASSWORD")
+HOST = os.getenv("DB_HOST")
 
 # Create Database if it doesn't exist
 def create_database():
     try:
         print("Creating database...")
-        connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST)
+        connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST, port=14025)
         cursor = connection.cursor()
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
         cursor.close()
@@ -26,9 +26,9 @@ def create_database():
 
 # Initialize Database Tables
 def init_db():
-    create_database()
+    # create_database()
     try:
-        connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST, database=DB_NAME)
+        connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST, database=DB_NAME, port=14025)
         cursor = connection.cursor()
         print("Initializing database tables...")
         table_queries = [
