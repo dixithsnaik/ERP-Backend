@@ -17,6 +17,7 @@ DB_NAME = os.getenv("DB_NAME", "ERPDB")
 USER = os.getenv("DB_USER", "root")
 PASSWORD = os.getenv("DB_PASSWORD", "root")
 HOST = os.getenv("DB_HOST", "localhost")
+PORT = os.getenv("DB_PORT", 14025)
 
 # Initialize Faker
 fake = Faker()
@@ -28,7 +29,8 @@ def connect_to_db():
             host=HOST,
             user=USER,
             password=PASSWORD,
-            database=DB_NAME
+            database=DB_NAME,
+            port=PORT
         )
         return connection
     except mysql.connector.Error as error:
@@ -719,7 +721,8 @@ def print_all_tables(connection=None):
                 host=HOST,
                 user=USER,
                 password=PASSWORD,
-                database=DB_NAME
+                database=DB_NAME,
+                port=PORT
             )
             close_connection = True
         
