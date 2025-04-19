@@ -1,27 +1,24 @@
 FROM python:3.11-buster
 
-# Install Poetry via curl (latest version)
-RUN curl -sSL https://install.python-poetry.org | python3 -
-
-# Set Poetry's binary path to PATH
-ENV PATH="${PATH}:/root/.local/bin"
+# Install Poetry and ensure it's on PATH
+RUN curl -sSL https://install.python-poetry.org | python3 - && \
+    ln -s /root/.local/bin/poetry /usr/local/bin/poetry
 
 # Install Google Cloud SDK
-RUN curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz
-
-RUN mkdir -p /usr/local/gcloud && tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz \
-    && /usr/local/gcloud/google-cloud-sdk/install.sh
+RUN curl -o /tmp/google-cloud-sdk.tar.gz https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz && \
+    mkdir -p /usr/local/gcloud && \
+    tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz && \
+    /usr/local/gcloud/google-cloud-sdk/install.sh
 
 # Add gcloud to PATH
 ENV PATH=$PATH:/usr/local/gcloud/google-cloud-sdk/bin
 
-# Copy the rest of the project files after installing dependencies (avoids re-installing if code changes)
 COPY . .
 
-# Install dependencies using Poetry (Poetry installs in the working directory)
+# Install dependencies using Poetry
 RUN poetry install
 
-# Set environment variables for Flask (optional fallback)
+# Set environment variables
 ENV FLASK_APP=run.py
 ENV FLASK_ENV=development
 
