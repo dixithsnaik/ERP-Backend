@@ -1,2 +1,6 @@
 .env
 *.pyc
+.idea/
+.vscode/
+google-cloud-sdk/
+gcpkey.json

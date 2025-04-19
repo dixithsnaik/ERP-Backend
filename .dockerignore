@@ -1,0 +1,49 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+
+# Ignore Python cache and compiled files
+_pycache_/
+*.pyc
+*.pyo
+
+# Ignore virtual environment
+venv/
+env/
+
+# Ignore Git-related files
+.git
+.gitignore
+
+# Ignore Docker-related leftovers
+Dockerfile~
+.dockerignore~
+
+# Ignore OS and editor-specific files
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# Ignore test logs, local settings, etc.
+*.log
+*.env
+*.sqlite3
+.env.*
+
+# Ignore node_modules if using Node.js
+node_modules/
+
+# Ignore frontend build files (optional, depending on your setup)
+dist/
+build/
+.cache/
+coverage/
+
+# Ignore IDE settings
+.vscode/
+.idea/
+
+gcpkey.json

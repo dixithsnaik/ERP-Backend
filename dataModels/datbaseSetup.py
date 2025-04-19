@@ -10,12 +10,13 @@ DB_NAME = os.getenv("DB_NAME", "ERPDB")
 USER = os.getenv("DB_USER", "root")
 PASSWORD = os.getenv("DB_PASSWORD", "root")
 HOST = os.getenv("DB_HOST", "localhost")
+PORT = os.getenv("DB_PORT", 3306)
 
 # Create Database if it doesn't exist
 def create_database():
     try:
         print("Creating database...")
-        connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST)
+        connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST, port=PORT)
         cursor = connection.cursor()
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
         cursor.close()
@@ -26,12 +27,31 @@ def create_database():
 
 # Initialize Database Tables
 def init_db():
-    create_database()
+    # create_database()
     try:
-        connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST, database=DB_NAME)
+        connection = mysql.connector.connect(user=USER, password=PASSWORD, host=HOST, database=DB_NAME , port=PORT)
         cursor = connection.cursor()
         print("Initializing database tables...")
         table_queries = [
+             """
+            CREATE TABLE IF NOT EXISTS companyDetails (
+                company_id INT AUTO_INCREMENT PRIMARY KEY,
+                company_name VARCHAR(255) NOT NULL,
+                email_address VARCHAR(255) UNIQUE NOT NULL,
+                phone_number VARCHAR(20) NOT NULL,
+                address_line1 VARCHAR(255) NOT NULL,
+                address_line2 VARCHAR(255),
+                gst_number VARCHAR(50) UNIQUE NOT NULL,
+                city VARCHAR(100) NOT NULL,
+                state VARCHAR(100) NOT NULL,
+                pin_code VARCHAR(20) NOT NULL,
+                gst_registration_number VARCHAR(50) UNIQUE NOT NULL,
+                gst_registration_type VARCHAR(100) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """,
+            
             """
             CREATE TABLE IF NOT EXISTS users (
             userid INT AUTO_INCREMENT PRIMARY KEY,
@@ -110,7 +130,7 @@ def init_db():
 
             """,
             """
-           CREATE TABLE IF NOT EXISTS EmployeeRecords (
+            CREATE TABLE IF NOT EXISTS EmployeeRecords (
                 EmployeeID INT AUTO_INCREMENT PRIMARY KEY,
                 Name VARCHAR(255) NOT NULL,
                 EmailAddress VARCHAR(255) UNIQUE,
@@ -126,14 +146,17 @@ def init_db():
                 City VARCHAR(100),
                 State VARCHAR(100),
                 PinCode VARCHAR(20),
-                DateOfJoining DATE
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                DateOfJoining DATE, 
+                DateOfLeaving DATE DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
             """,
             """
             CREATE TABLE IF NOT EXISTS purchase_order (
                 workordernumber INT AUTO_INCREMENT PRIMARY KEY,
-                customerid INT,
+                customerid INT NOT NULL,
                 quotationid INT,
                 employeeid INT,
                 po_number VARCHAR(50) UNIQUE NOT NULL,
@@ -142,7 +165,7 @@ def init_db():
                 amount DECIMAL(15,2) NOT NULL,
                 project_engineers JSON,
                 quality_engineers JSON,
-                delivery_date DATE,
+                delivery_date DATE NOT NULL,
                 status VARCHAR(50) DEFAULT 'Pending',
                 remarks TEXT,
                 contact_person_name VARCHAR(255),
@@ -163,28 +186,6 @@ def init_db():
 
             """,
             """
-            CREATE TABLE IF NOT EXISTS bmo (
-                workordernumber INT PRIMARY KEY,
-                FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS annexure (
-                annexureid INT AUTO_INCREMENT PRIMARY KEY,
-                annexure_number VARCHAR(50),
-                annexure_type VARCHAR(50),
-                process VARCHAR(255),
-                type_of_goods VARCHAR(255),
-                vendorsid INT,
-                status ENUM('Approve', 'Reject', 'Pending') DEFAULT 'Pending',
-                aosn_details JSON, 
-                logs TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-            """,
-            """
             CREATE TABLE IF NOT EXISTS production_slip (
                 slip_number INT AUTO_INCREMENT PRIMARY KEY,
                 workordernumber INT NOT NULL,
@@ -195,6 +196,8 @@ def init_db():
                 quality_engineer VARCHAR(255),
                 store VARCHAR(255),
                 account VARCHAR(255),
+                customer_acceptance_status BOOLEAN DEFAULT NULL,
+                reason_for_rejection TEXT,
                 special_instruction TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 logs TEXT,
@@ -220,6 +223,28 @@ def init_db():
                 INDEX idx_state (state)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """,
+            """     
+            CREATE TABLE IF NOT EXISTS annexure (
+                annexureid INT AUTO_INCREMENT PRIMARY KEY,
+                annexure_type VARCHAR(50),
+                employeeid INT,
+                workordernumber INT,
+                vendorsid INT,
+                statusManagerId INT NULL DEFAULT NULL,
+                statusManager BOOLEAN NULL DEFAULT NULL,
+                statusAdminId INT NULL DEFAULT NULL,
+                statusAdmin BOOLEAN NULL DEFAULT NULL,
+                item_details JSON, 
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (employeeid) REFERENCES EmployeeRecords(employeeid) ON DELETE SET NULL,
+                FOREIGN KEY (vendorsid) REFERENCES vendors(vendorsid) ON DELETE CASCADE,
+                FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE,
+                FOREIGN KEY (statusManagerId) REFERENCES EmployeeRecords(employeeid) ON DELETE SET NULL,
+                FOREIGN KEY (statusAdminId) REFERENCES EmployeeRecords(employeeid) ON DELETE SET NULL
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """
+            ,
             """
             CREATE TABLE IF NOT EXISTS po_outwards (
                 pooutid INT AUTO_INCREMENT PRIMARY KEY,
@@ -228,12 +253,13 @@ def init_db():
                 typeofgoods VARCHAR(255),
                 delivery_date DATE,
                 status BOOLEAN,
-                approval_status BOOLEAN,
+                approval_status BOOLEAN NOT NULL DEFAULT FALSE,
                 itemDetails JSON,
                 remarks TEXT,
                 vendorsid INT NULL,
                 annexureid INT NULL,
                 workordernumber INT NULL,
+                jobwork BOOLEAN NOT NULL DEFAULT FALSE,
                 FOREIGN KEY (employeeid) REFERENCES EmployeeRecords(employeeid) ON DELETE CASCADE,
                 FOREIGN KEY (vendorsid) REFERENCES vendors(vendorsid) ON DELETE CASCADE,
                 FOREIGN KEY (annexureid) REFERENCES annexure(annexureid) ON DELETE CASCADE,
@@ -259,14 +285,46 @@ def init_db():
 
             """,
             """
+            CREATE TABLE IF NOT EXISTS meterial (
+                meterialid INT AUTO_INCREMENT PRIMARY KEY,
+                meterial_name VARCHAR(255) NOT NULL UNIQUE,
+                meterial_description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS goods (
+                goodid INT AUTO_INCREMENT PRIMARY KEY,
+                good_name VARCHAR(255) NOT NULL UNIQUE,
+                good_description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS items (
+                itemid INT AUTO_INCREMENT PRIMARY KEY,
+                item_name VARCHAR(255) NOT NULL UNIQUE,
+                item_description TEXT,
+                hsncode VARCHAR(50),
+                unit VARCHAR(50) NOT NULL Check(unit <> ""),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            """,
+            """
             CREATE TABLE IF NOT EXISTS inventory (
                 meterialid INT,
                 goodid INT,
                 itemid INT,
-                Available_Quantity INT,
-                
-                PRIMARY KEY (meterialid, goodid, itemid)
-            )
+                quantity INT CHECK (quantity >= 0),
+                average_price DECIMAL(15,2),
+                PRIMARY KEY (meterialid, goodid, itemid),
+                FOREIGN KEY (meterialid) REFERENCES meterial(meterialid),
+                FOREIGN KEY (goodid) REFERENCES goods(goodid),
+                FOREIGN KEY (itemid) REFERENCES items(itemid)
+            );
             """,
             """
             CREATE TABLE IF NOT EXISTS inlog (
@@ -274,19 +332,32 @@ def init_db():
                 goodid INT,
                 itemid INT,
                 pooutid INT,
+                quantity INT CHECK (quantity >= 0),
+                price DECIMAL(15,2),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (meterialid, goodid, itemid, pooutid),
-                FOREIGN KEY (meterialid, goodid, itemid) REFERENCES inventory(meterialid, goodid, itemid) ON DELETE CASCADE,
-                FOREIGN KEY (pooutid) REFERENCES po_outwards(pooutid) ON DELETE CASCADE
-            )
+                FOREIGN KEY (pooutid) REFERENCES po_outwards(pooutid)
+            );    
             """,
             """
             CREATE TABLE IF NOT EXISTS outlog (
                 meterialid INT,
                 goodid INT,
                 itemid INT,
+                quantity INT CHECK (quantity >= 0),
                 workordernumber INT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (meterialid, goodid, itemid, workordernumber),
-                FOREIGN KEY (meterialid, goodid, itemid) REFERENCES inventory(meterialid, goodid, itemid) ON DELETE CASCADE,
+                FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber)
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS bom(
+                bomid INT AUTO_INCREMENT PRIMARY KEY,
+                workordernumber INT,
+                gcp_bucket VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (workordernumber) REFERENCES purchase_order(workordernumber) ON DELETE CASCADE
             )
             """
