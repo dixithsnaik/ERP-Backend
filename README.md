@@ -49,3 +49,19 @@ poetry run python scripts/fake_data_generation.py
     - gcloud config set project "id_of_the_projet"
 - In ~/.bashrc export GOOGLE_APPLICATION_CREDENTIALS="path to key.json"
 - run the command source ~/.bashrc
+
+
+
+
+docker run `
+  -e FLASK_APP=run.py `
+  -e FLASK_ENV=development `
+  -e DB_NAME=ERPDB `
+  -e DB_USER=root `
+  -e DB_PASSWORD=root `
+  -e DB_HOST=host.docker.internal `
+  -e DB_PORT=3306 `
+  -e GOOGLE_APPLICATION_CREDENTIALS=/gcp/gcpkey.json `
+  -v "${PWD}\gcpkey.json:/gcp/gcpkey.json:ro" `
+  -p 5000:5000 `
+  erp-backend
